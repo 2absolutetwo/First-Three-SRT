@@ -3,12 +3,10 @@ import { type Subtitle } from "@/lib/srt";
 import SrtEditorTab from "@/tabs/SrtEditorTab";
 import TextSplitterTab from "@/tabs/TextSplitterTab";
 import SrtConverterTab from "@/tabs/SrtConverterTab";
-import SrtEditTab from "@/tabs/SrtEditTab";
-import CounterTab from "@/tabs/CounterTab";
 import SrtNoteTab from "@/tabs/SrtNoteTab";
 import SrtMakerTab from "@/tabs/SrtMakerTab";
 
-type Tab = "editor" | "splitter" | "converter" | "edit" | "counter" | "note" | "maker";
+type Tab = "editor" | "splitter" | "converter" | "note" | "maker";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -35,24 +33,6 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-      </svg>
-    ),
-  },
-  {
-    id: "edit",
-    label: "SRT Edit",
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-      </svg>
-    ),
-  },
-  {
-    id: "counter",
-    label: "Counter",
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
       </svg>
     ),
   },
@@ -156,22 +136,6 @@ export default function App() {
           <SrtConverterTab
             sharedSubtitles={subtitles}
             sharedFilename={filename}
-          />
-        )}
-        {activeTab === "edit" && (
-          <SrtEditTab
-            subtitles={subtitles}
-            filename={filename}
-            setSubtitles={setSubtitles}
-            setFilename={setFilename}
-          />
-        )}
-        {activeTab === "counter" && (
-          <CounterTab
-            subtitles={subtitles}
-            filename={filename}
-            setSubtitles={setSubtitles}
-            setFilename={setFilename}
           />
         )}
       </main>
