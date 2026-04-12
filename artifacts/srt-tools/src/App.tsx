@@ -6,8 +6,9 @@ import SrtConverterTab from "@/tabs/SrtConverterTab";
 import SrtEditTab from "@/tabs/SrtEditTab";
 import CounterTab from "@/tabs/CounterTab";
 import SrtNoteTab from "@/tabs/SrtNoteTab";
+import SrtMakerTab from "@/tabs/SrtMakerTab";
 
-type Tab = "editor" | "splitter" | "converter" | "edit" | "counter" | "note";
+type Tab = "editor" | "splitter" | "converter" | "edit" | "counter" | "note" | "maker";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -64,6 +65,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
       </svg>
     ),
   },
+  {
+    id: "maker",
+    label: "SRT Maker",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+      </svg>
+    ),
+  },
 ];
 
 export default function App() {
@@ -74,7 +84,7 @@ export default function App() {
   const hasFile = subtitles.length > 0;
 
   return (
-    <div className={activeTab === "note" ? "h-screen flex flex-col overflow-hidden" : "min-h-screen bg-gray-100"}>
+    <div className={(activeTab === "note" || activeTab === "maker") ? "h-screen flex flex-col overflow-hidden" : "min-h-screen bg-gray-100"}>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex items-center gap-3 py-3">
@@ -113,6 +123,10 @@ export default function App() {
 
       {activeTab === "note" ? (
         <SrtNoteTab />
+      ) : activeTab === "maker" ? (
+        <main className="px-4 py-5 flex-1 overflow-hidden">
+          <SrtMakerTab />
+        </main>
       ) : (
         <main className="max-w-5xl mx-auto px-4 py-5">
           {activeTab === "editor" && (
