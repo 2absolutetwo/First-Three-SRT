@@ -5,8 +5,9 @@ import TextSplitterTab from "@/tabs/TextSplitterTab";
 import SrtConverterTab from "@/tabs/SrtConverterTab";
 import SrtEditTab from "@/tabs/SrtEditTab";
 import CounterTab from "@/tabs/CounterTab";
+import SrtNoteTab from "@/tabs/SrtNoteTab";
 
-type Tab = "editor" | "splitter" | "converter" | "edit" | "counter";
+type Tab = "editor" | "splitter" | "converter" | "edit" | "counter" | "note";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -54,6 +55,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
       </svg>
     ),
   },
+  {
+    id: "note",
+    label: "SRT Note",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      </svg>
+    ),
+  },
 ];
 
 export default function App() {
@@ -64,7 +74,7 @@ export default function App() {
   const hasFile = subtitles.length > 0;
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className={activeTab === "note" ? "h-screen flex flex-col overflow-hidden" : "min-h-screen bg-gray-100"}>
       <header className="bg-white border-b border-gray-200 sticky top-0 z-20">
         <div className="max-w-5xl mx-auto px-4">
           <div className="flex items-center gap-3 py-3">
@@ -101,44 +111,48 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-5">
-        {activeTab === "editor" && (
-          <SrtEditorTab
-            subtitles={subtitles}
-            filename={filename}
-            setSubtitles={setSubtitles}
-            setFilename={setFilename}
-          />
-        )}
-        {activeTab === "splitter" && (
-          <TextSplitterTab
-            editorSubtitles={subtitles}
-            editorFilename={filename}
-          />
-        )}
-        {activeTab === "converter" && (
-          <SrtConverterTab
-            sharedSubtitles={subtitles}
-            sharedFilename={filename}
-          />
-        )}
-        {activeTab === "edit" && (
-          <SrtEditTab
-            subtitles={subtitles}
-            filename={filename}
-            setSubtitles={setSubtitles}
-            setFilename={setFilename}
-          />
-        )}
-        {activeTab === "counter" && (
-          <CounterTab
-            subtitles={subtitles}
-            filename={filename}
-            setSubtitles={setSubtitles}
-            setFilename={setFilename}
-          />
-        )}
-      </main>
+      {activeTab === "note" ? (
+        <SrtNoteTab />
+      ) : (
+        <main className="max-w-5xl mx-auto px-4 py-5">
+          {activeTab === "editor" && (
+            <SrtEditorTab
+              subtitles={subtitles}
+              filename={filename}
+              setSubtitles={setSubtitles}
+              setFilename={setFilename}
+            />
+          )}
+          {activeTab === "splitter" && (
+            <TextSplitterTab
+              editorSubtitles={subtitles}
+              editorFilename={filename}
+            />
+          )}
+          {activeTab === "converter" && (
+            <SrtConverterTab
+              sharedSubtitles={subtitles}
+              sharedFilename={filename}
+            />
+          )}
+          {activeTab === "edit" && (
+            <SrtEditTab
+              subtitles={subtitles}
+              filename={filename}
+              setSubtitles={setSubtitles}
+              setFilename={setFilename}
+            />
+          )}
+          {activeTab === "counter" && (
+            <CounterTab
+              subtitles={subtitles}
+              filename={filename}
+              setSubtitles={setSubtitles}
+              setFilename={setFilename}
+            />
+          )}
+        </main>
+      )}
     </div>
   );
 }
