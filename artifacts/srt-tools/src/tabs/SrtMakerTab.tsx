@@ -47,6 +47,7 @@ export default function SrtMakerTab() {
   const [sentences, setSentences] = useState("");
   const [generated, setGenerated] = useState(false);
   const [lang, setLang] = useState<"en" | "ar" | "de">("en");
+  const [langOpen, setLangOpen] = useState(false);
   const langDir = lang === "ar" ? "rtl" : "ltr";
   const audioInputRef = useRef<HTMLInputElement>(null);
   const lineRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -251,17 +252,32 @@ export default function SrtMakerTab() {
               <p className="text-gray-700 text-sm font-bold leading-none">Sentence Input</p>
               <p className="text-gray-400 text-xs mt-0.5">One sentence per line</p>
             </div>
-            <div className="flex items-center gap-1 ml-2">
-              {([
-                { code: "en", label: "EN", title: "English (LTR)" },
-                { code: "ar", label: "AR", title: "Arabic (RTL)" },
-                { code: "de", label: "DE", title: "German (LTR)" },
-              ] as const).map(({ code, label, title }) => (
-                <button key={code} title={title} onClick={() => setLang(code)}
-                  className={`w-7 h-7 rounded-full text-xs font-bold transition-all border ${lang === code ? "bg-blue-500 text-white border-blue-500 shadow" : "bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-500"}`}>
-                  {label}
-                </button>
-              ))}
+            <div className="relative ml-2">
+              <button
+                onClick={() => setLangOpen((o) => !o)}
+                title="Select language direction"
+                className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 bg-white text-xs font-bold text-gray-600 hover:border-blue-300 hover:text-blue-500 transition-all shadow-sm"
+              >
+                <span className="text-blue-500 font-semibold">{lang.toUpperCase()}</span>
+                <svg className="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
+                </svg>
+              </button>
+              {langOpen && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-50 overflow-hidden min-w-[110px]">
+                  {([
+                    { code: "en", label: "EN", desc: "English (LTR)" },
+                    { code: "ar", label: "AR", desc: "Arabic (RTL)" },
+                    { code: "de", label: "DE", desc: "German (LTR)" },
+                  ] as const).map(({ code, label, desc }) => (
+                    <button key={code} onClick={() => { setLang(code); setLangOpen(false); }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold transition-colors hover:bg-blue-50 ${lang === code ? "bg-blue-50 text-blue-600" : "text-gray-600"}`}>
+                      <span className="font-bold">{label}</span>
+                      <span className="text-gray-400 font-normal">{desc}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2 ml-auto">
               {sentences.trim() && (
