@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Plus, Download } from "lucide-react";
 
 const LANGUAGES = [
-  { key: "english", label: "English", contentId: "english-content", placeholder: "Write your notes in English...", dir: "ltr" },
+  { key: "english", label: "Original", contentId: "english-content", placeholder: "Write your notes here...", dir: "ltr" },
   { key: "arabic",  label: "Arabic",  contentId: "arabic-content",  placeholder: "...Write your notes in Arabic",  dir: "rtl" },
   { key: "german",  label: "German",  contentId: "german-content",  placeholder: "Write your notes in German...",  dir: "ltr" },
 ] as const;
