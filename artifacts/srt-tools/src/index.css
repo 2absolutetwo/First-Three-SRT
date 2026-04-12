@@ -248,6 +248,26 @@
 
 .nb-export-btn:hover { background: #f5f5f5; }
 
+.nb-delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #fff;
+  border: 1px solid #e0b4b4;
+  border-radius: 4px;
+  font-size: 13px;
+  color: #c00;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.nb-delete-btn:hover {
+  background: #fff0f0;
+  border-color: #f5a0a0;
+}
+
 .nb-columns-wrapper {
   display: flex;
   flex: 1;
