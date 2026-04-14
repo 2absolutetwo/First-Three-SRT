@@ -6,14 +6,20 @@ interface Props {
   sharedFilename: string;
 }
 
-function textToDashes(text: string, counter: { n: number }): string {
+type EmojiMode = "number" | "emoji";
+
+function textToDashes(text: string, counter: { n: number }, mode: EmojiMode): string {
   const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
   const emojiCheck = /\p{Extended_Pictographic}/u;
   let result = "";
   for (const { segment } of segmenter.segment(text)) {
     if (emojiCheck.test(segment)) {
-      counter.n++;
-      result += `[${String(counter.n).padStart(3, "0")}]`;
+      if (mode === "number") {
+        counter.n++;
+        result += `[${String(counter.n).padStart(3, "0")}]`;
+      } else {
+        result += "✅";
+      }
     } else {
       result += "-";
     }
@@ -26,6 +32,7 @@ export default function SrtConverterTab({ sharedSubtitles, sharedFilename }: Pro
   const [filename, setFilename] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [converted, setConverted] = useState(false);
+  const [emojiMode, setEmojiMode] = useState<EmojiMode>("number");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const userModified = useRef(false);
 
@@ -75,7 +82,7 @@ export default function SrtConverterTab({ sharedSubtitles, sharedFilename }: Pro
     const result = subtitles.map((s) => {
       const newText = s.text
         .split("\n")
-        .map((line) => textToDashes(line, counter))
+        .map((line) => textToDashes(line, counter, emojiMode))
         .join("\n");
       return { ...s, text: newText, edited: true };
     });
@@ -97,6 +104,32 @@ export default function SrtConverterTab({ sharedSubtitles, sharedFilename }: Pro
           </span>
         )}
         <div className="flex-1" />
+
+        {/* Mode toggle */}
+        <div className="flex items-center gap-0.5 p-0.5 rounded-lg bg-gray-100 border border-gray-200">
+          <button
+            onClick={() => { setEmojiMode("number"); setConverted(false); }}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+              emojiMode === "number"
+                ? "bg-white text-gray-800 shadow-sm border border-gray-200"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <span className="font-mono font-bold">[001]</span>
+            Number
+          </button>
+          <button
+            onClick={() => { setEmojiMode("emoji"); setConverted(false); }}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold transition-all ${
+              emojiMode === "emoji"
+                ? "bg-white text-gray-800 shadow-sm border border-gray-200"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <span>✅</span>
+            Emoji
+          </button>
+        </div>
 
         <button
           onClick={handleConvert}
@@ -125,10 +158,15 @@ export default function SrtConverterTab({ sharedSubtitles, sharedFilename }: Pro
         <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 flex items-start gap-3">
           <span className="text-amber-500 text-lg shrink-0 mt-0.5">⚡</span>
           <div className="text-xs text-amber-800 leading-relaxed">
-            <span className="font-semibold">Text → Dashes:</span> প্রতিটি character → <span className="font-mono font-bold">-</span> হবে। Emoji গুলো পুরো file জুড়ে sequential number পাবে।
+            <span className="font-semibold">Text → Dashes:</span> প্রতিটি character → <span className="font-mono font-bold">-</span> হবে।{" "}
+            {emojiMode === "number"
+              ? "Emoji গুলো পুরো file জুড়ে sequential number পাবে।"
+              : "Emoji গুলো ✅ হিসেবে থাকবে।"}
             <br />
             <span className="font-mono text-amber-700 text-xs mt-1 block">
-              "Hello✅ World✅" → "-----[001]------[002]"
+              {emojiMode === "number"
+                ? '"Hello✅ World✅" → "-----[001]------[002]"'
+                : '"Hello✅ World✅" → "-----✅------✅"'}
             </span>
           </div>
         </div>
@@ -199,8 +237,8 @@ export default function SrtConverterTab({ sharedSubtitles, sharedFilename }: Pro
                 )}
               </div>
               <p className="text-sm text-gray-800 font-mono break-all leading-relaxed">
-                {sub.text.split(/(\[\d{3}\])/g).map((part, i) =>
-                  /^\[\d{3}\]$/.test(part)
+                {sub.text.split(/(\[\d{3}\]|✅)/g).map((part, i) =>
+                  /^\[\d{3}\]$/.test(part) || part === "✅"
                     ? <span key={i} className="text-green-600 font-bold">{part}</span>
                     : part
                 )}
