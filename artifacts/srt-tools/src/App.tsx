@@ -5,8 +5,9 @@ import TextSplitterTab from "@/tabs/TextSplitterTab";
 import SrtConverterTab from "@/tabs/SrtConverterTab";
 import SrtNoteTab from "@/tabs/SrtNoteTab";
 import SrtMakerTab from "@/tabs/SrtMakerTab";
+import VoiceTrimmerTab from "@/tabs/VoiceTrimmerTab";
 
-type Tab = "editor" | "splitter" | "converter" | "note" | "maker";
+type Tab = "editor" | "splitter" | "converter" | "note" | "maker" | "trimmer";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -51,6 +52,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+      </svg>
+    ),
+  },
+  {
+    id: "trimmer",
+    label: "Voice Trimmer",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
       </svg>
     ),
   },
@@ -113,9 +123,16 @@ export default function App() {
         </main>
       </div>
 
+      {/* Voice Trimmer — always mounted, hidden when inactive */}
+      <div style={{ display: activeTab === "trimmer" ? "block" : "none" }} className="flex-1 overflow-y-auto">
+        <main className="max-w-3xl mx-auto px-6 py-5">
+          <VoiceTrimmerTab />
+        </main>
+      </div>
+
       {/* Other tabs */}
       <main
-        style={{ display: (activeTab === "note" || activeTab === "maker") ? "none" : "block" }}
+        style={{ display: (activeTab === "note" || activeTab === "maker" || activeTab === "trimmer") ? "none" : "block" }}
         className="max-w-5xl mx-auto px-4 py-5 flex-1 overflow-y-auto w-full"
       >
         {activeTab === "editor" && (
