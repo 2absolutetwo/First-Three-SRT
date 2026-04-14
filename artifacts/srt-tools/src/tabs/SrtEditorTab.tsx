@@ -1,15 +1,7 @@
 import { useState, useRef } from "react";
 import { type Subtitle, parseSrt, downloadSrt } from "@/lib/srt";
 
-const SYMBOLS = [
-  { label: "Sun Cross", char: "☀️" },
-  { label: "Glowing Star", char: "🌟" },
-  { label: "Sparkles", char: "✨" },
-  { label: "Lightning", char: "⚡" },
-  { label: "Check Mark", char: "✅" },
-  { label: "Red Triangle", char: "🔺" },
-  { label: "No Entry", char: "⛔" },
-];
+const CHECK_MARK = "✅";
 
 const SAMPLE_SRT = `1
 00:00:01,000 --> 00:00:04,000
@@ -55,8 +47,6 @@ function msToTime(ms: number): string {
 }
 
 export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFilename }: Props) {
-  const [selectedSymbol, setSelectedSymbol] = useState(SYMBOLS[4]);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
   const [convertStats, setConvertStats] = useState<{ marks: number; ellipsis: number } | null>(null);
   const [converted, setConverted] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
@@ -203,7 +193,7 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
       text = text.replace(/[.?!।]{2,}/g, "");
       const singleMatches = (text.match(/[.?!।]/g) || []);
       marks += singleMatches.length;
-      text = text.replace(/[.?!।]/g, selectedSymbol.char);
+      text = text.replace(/[.?!।]/g, CHECK_MARK);
       return { ...s, text, edited: text !== s.originalText };
     });
     setSubtitles(result);
@@ -226,7 +216,7 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
         {converted && convertStats && (
           <>
             <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">
-              {selectedSymbol.char} {convertStats.marks} marks converted
+              {CHECK_MARK} {convertStats.marks} marks converted
             </span>
             {convertStats.ellipsis > 0 && (
               <span className="text-xs bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-medium">
@@ -253,38 +243,6 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
         )}
 
         <div className="flex-1" />
-        <span className="text-xs text-gray-400 font-medium hidden sm:inline">Replace . ? ! ।&nbsp;with</span>
-
-        <div className="relative">
-          <button
-            onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm"
-          >
-            <span>{selectedSymbol.char}</span>
-            <span>{selectedSymbol.label}</span>
-            <svg className="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {dropdownOpen && (
-            <div className="absolute right-0 mt-1 w-44 bg-white border border-gray-200 rounded-xl shadow-xl z-30 py-1 overflow-hidden">
-              {SYMBOLS.map((sym) => (
-                <button
-                  key={sym.char}
-                  onClick={() => { setSelectedSymbol(sym); setDropdownOpen(false); }}
-                  className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm text-left transition-colors ${
-                    selectedSymbol.char === sym.char
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
-                >
-                  <span className="text-base">{sym.char}</span>
-                  <span>{sym.label}</span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
 
         <button
           onClick={handleFixTiming}
@@ -377,7 +335,7 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
           <span className="text-sm font-semibold text-gray-700">{filename}</span>
           {converted && (
             <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
-              {selectedSymbol.char} Converted
+              {CHECK_MARK} Converted
             </span>
           )}
           <div className="flex-1" />
