@@ -158,9 +158,12 @@ export default function VoiceTrimmerTab() {
                     const a = document.createElement("a");
                     a.href = url;
                     a.download = f.name.replace(/\.[^.]+$/, "") + "_trimmed.wav";
+                    a.style.display = "none";
+                    document.body.appendChild(a);
                     a.click();
+                    document.body.removeChild(a);
                     URL.revokeObjectURL(url);
-                  }, i * 150);
+                  }, i * 200);
                 });
               }}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
@@ -200,7 +203,10 @@ export default function VoiceTrimmerTab() {
                     const a = document.createElement("a");
                     a.href = url;
                     a.download = f.name.replace(/\.[^.]+$/, "") + "_trimmed.wav";
+                    a.style.display = "none";
+                    document.body.appendChild(a);
                     a.click();
+                    document.body.removeChild(a);
                     URL.revokeObjectURL(url);
                   }}
                   className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium shrink-0 transition-all"
