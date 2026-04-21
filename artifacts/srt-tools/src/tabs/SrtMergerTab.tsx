@@ -216,8 +216,9 @@ export default function SrtMergerTab() {
 
   return (
     <div className="min-h-screen bg-[#f5f7fa] font-sans">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+      {/* Header — top card */}
+      <div className="max-w-6xl mx-auto px-4 pt-4">
+      <div className="bg-white border border-gray-200 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-emerald-500" />
           <span className="font-semibold text-gray-800 text-sm">SRT Merger</span>
@@ -252,8 +253,10 @@ export default function SrtMergerTab() {
         </div>
       </div>
 
+      </div>
+
       {/* Three Cards */}
-      <div className="p-4 grid grid-cols-3 gap-4 h-[calc(100vh-56px)]">
+      <div className="max-w-6xl mx-auto px-4 py-4 grid grid-cols-3 gap-4 h-[calc(100vh-80px)]">
         {/* Card 1 — SRT Upload */}
         <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
