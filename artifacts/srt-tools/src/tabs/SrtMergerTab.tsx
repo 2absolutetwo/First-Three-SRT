@@ -69,6 +69,20 @@ function fixOverlapsInEntries(entries: SRTEntry[]): SRTEntry[] {
   });
 }
 
+function stripLeadingNumber(line: string): string {
+  return line.replace(
+    /^\s*[\(\[\{]?\s*\d+\s*[\)\]\}\.\:\-–—]\s*/,
+    ""
+  );
+}
+
+function cleanSentenceBlock(text: string): string {
+  return text
+    .split("\n")
+    .map((l) => stripLeadingNumber(l))
+    .join("\n");
+}
+
 function generateSRT(entries: SRTEntry[], sentences: string[]): string {
   const lines: string[] = [];
   const count = Math.min(entries.length, sentences.length);
@@ -95,7 +109,7 @@ export default function SrtMergerTab() {
   const handleAddMore = () => {
     const newLines = addMoreText
       .split("\n")
-      .map((s) => s.trim())
+      .map((s) => stripLeadingNumber(s).trim())
       .filter((s) => s.length > 0);
     if (newLines.length === 0) return;
     setSentenceHistory((h) => [...h, sentenceText]);
@@ -118,7 +132,7 @@ export default function SrtMergerTab() {
 
   const sentences = sentenceText
     .split("\n")
-    .map((s) => s.trim())
+    .map((s) => stripLeadingNumber(s).trim())
     .filter((s) => s.length > 0);
 
   const outputEntries = srtEntries.slice(0, sentences.length).map((entry, i) => ({
@@ -429,6 +443,19 @@ export default function SrtMergerTab() {
                 <span className="bg-blue-50 text-blue-600 border border-blue-100 text-xs px-2 py-0.5 rounded-full font-medium">
                   {sentences.length} lines
                 </span>
+              )}
+              {sentenceText && (
+                <button
+                  onClick={() => {
+                    setSentenceHistory((h) => [...h, sentenceText]);
+                    setSentenceText((prev) => cleanSentenceBlock(prev));
+                    toast({ title: "Numbers removed", description: "Leading numbering stripped from all lines" });
+                  }}
+                  title="Remove leading (1), 1., 1) etc."
+                  className="text-xs text-purple-500 hover:text-purple-600 font-medium border border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded transition-colors"
+                >
+                  Remove numbers
+                </button>
               )}
               {sentenceHistory.length > 0 && (
                 <button
