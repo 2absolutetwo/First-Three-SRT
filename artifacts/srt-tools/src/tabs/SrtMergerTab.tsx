@@ -156,6 +156,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
   const [showNotepad, setShowNotepad] = useState(false);
   const [notepadText, setNotepadText] = useState("");
   const [notepadSplit, setNotepadSplit] = useState(false);
+  const [copiedChunks, setCopiedChunks] = useState<Set<number>>(new Set());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -797,28 +798,41 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                       const slice = lines.slice(i, i + CHUNK);
                       chunks.push({ start: i + 1, end: i + slice.length, text: slice.join("\n") });
                     }
-                    return chunks.map((c, idx) => (
-                      <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/40 overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-                          <div className="text-xs text-gray-600 dark:text-gray-300">
+                    return chunks.map((c, idx) => {
+                      const isCopied = copiedChunks.has(idx);
+                      return (
+                      <div key={idx} className={`border rounded-lg overflow-hidden transition-colors ${isCopied ? "border-emerald-400 dark:border-emerald-500 bg-emerald-50/60 dark:bg-emerald-900/20" : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/40"}`}>
+                        <div className={`flex items-center justify-between px-3 py-1.5 border-b transition-colors ${isCopied ? "border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30" : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"}`}>
+                          <div className="text-xs text-gray-600 dark:text-gray-300 flex items-center gap-2">
                             <span className="font-semibold">{c.start}–{c.end}</span>
-                            <span className="text-gray-400 dark:text-gray-500 ml-2">{c.end - c.start + 1} lines</span>
+                            <span className="text-gray-400 dark:text-gray-500">{c.end - c.start + 1} lines</span>
+                            {isCopied && <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-0.5">✓ Copied</span>}
                           </div>
                           <button
                             onClick={() => {
-                              navigator.clipboard.writeText(c.text);
-                              toast({ title: "Copied", description: `Lines ${c.start}–${c.end}` });
+                              setCopiedChunks((prev) => {
+                                const next = new Set(prev);
+                                if (next.has(idx)) {
+                                  next.delete(idx);
+                                } else {
+                                  next.add(idx);
+                                  navigator.clipboard.writeText(c.text);
+                                  toast({ title: "Copied", description: `Lines ${c.start}–${c.end}` });
+                                }
+                                return next;
+                              });
                             }}
-                            className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 px-2 py-0.5 rounded hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
-                            title="Copy this chunk"
+                            className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded transition-colors ${isCopied ? "text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/40" : "text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20"}`}
+                            title={isCopied ? "Click to undo" : "Copy this chunk"}
                           >
                             <Copy className="w-3 h-3" />
-                            Copy
+                            {isCopied ? "Undo" : "Copy"}
                           </button>
                         </div>
                         <pre className="px-3 py-1.5 text-xs leading-snug text-gray-800 dark:text-gray-100 whitespace-pre-wrap font-sans max-h-40 overflow-y-auto">{c.text}</pre>
                       </div>
-                    ));
+                      );
+                    });
                   })()}
                 </div>
               ) : (
