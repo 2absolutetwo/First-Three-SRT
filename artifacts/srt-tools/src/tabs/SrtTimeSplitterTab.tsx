@@ -12,18 +12,53 @@ interface Props {
   onFinalOutput?: (srt: string, filename: string) => void;
 }
 
+const STORAGE_KEY = "srt-tools:splitter-state:v1";
+
+type PersistedState = {
+  input: string;
+  fileName: string;
+  outputBlocks: SubtitleBlock[];
+  dotDone: boolean;
+  splitDone: boolean;
+  trimDone: boolean;
+};
+
+function loadPersisted(): PersistedState | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as PersistedState;
+    if (typeof parsed !== "object" || parsed === null) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, incomingKey, onFinalOutput }: Props = {}) {
-  const [input, setInput] = useState("");
+  const persisted = useRef<PersistedState | null>(loadPersisted()).current;
+  const [input, setInput] = useState(persisted?.input ?? "");
   const lastIncomingKey = useRef<number | undefined>(undefined);
   const [pasteText, setPasteText] = useState("");
   const [showPasteBox, setShowPasteBox] = useState(false);
-  const [outputBlocks, setOutputBlocks] = useState<SubtitleBlock[]>([]);
-  const [fileName, setFileName] = useState("");
+  const [outputBlocks, setOutputBlocks] = useState<SubtitleBlock[]>(persisted?.outputBlocks ?? []);
+  const [fileName, setFileName] = useState(persisted?.fileName ?? "");
   const [isDragging, setIsDragging] = useState(false);
-  const [dotDone, setDotDone] = useState(false);
-  const [splitDone, setSplitDone] = useState(false);
-  const [trimDone, setTrimDone] = useState(false);
+  const [dotDone, setDotDone] = useState(persisted?.dotDone ?? false);
+  const [splitDone, setSplitDone] = useState(persisted?.splitDone ?? false);
+  const [trimDone, setTrimDone] = useState(persisted?.trimDone ?? false);
   const finalSentRef = useRef(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const data: PersistedState = { input, fileName, outputBlocks, dotDone, splitDone, trimDone };
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    } catch {
+      // ignore quota / serialization errors
+    }
+  }, [input, fileName, outputBlocks, dotDone, splitDone, trimDone]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const inputBlocks = useMemo(() => parseInput(input), [input]);
