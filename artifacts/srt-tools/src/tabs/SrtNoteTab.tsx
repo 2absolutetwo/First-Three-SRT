@@ -391,7 +391,7 @@ export default function SrtNoteTab() {
         {(() => {
           const langs = activeProject?.langs ?? [];
           const allSplit = langs.length > 0 && langs.every((_, i) => splitView[`${activeId}:${i}`]);
-          const chunkSizeFor = (langIdx: number) => (langs[langIdx]?.label === "Original" ? 40 : 20);
+          const chunkSizeFor = (langIdx: number) => (langs[langIdx]?.label === "Original" ? 10 : 5);
           const renderChunkCard = (chunk: string[], chunkIdx: number, langIdx: number) => {
             const startLine = chunkIdx * chunkSizeFor(langIdx) + 1;
             const endLine = chunk.length > 0 ? startLine + chunk.length - 1 : startLine;
@@ -448,7 +448,7 @@ export default function SrtNoteTab() {
                     className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                     <Copy size={14} />
                   </button>
-                  <button onClick={() => handleSplit(idx)} title="Split into sub-cards (every 20 lines)"
+                  <button onClick={() => handleSplit(idx)} title="Split into sub-cards (every 5 lines)"
                     className={`p-1.5 rounded-md hover:bg-muted transition-colors ${splitView[`${activeId}:${idx}`] ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground"}`}>
                     <Scissors size={14} />
                   </button>
