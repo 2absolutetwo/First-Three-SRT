@@ -217,7 +217,7 @@ export default function SrtMergerTab() {
   return (
     <div className="h-screen flex flex-col bg-[#f5f7fa] font-sans overflow-hidden">
       {/* Header — top card */}
-      <div className="max-w-6xl w-full mx-auto px-4 pt-4 flex-shrink-0">
+      <div className="w-full mx-auto px-6 pt-4 flex-shrink-0">
       <div className="bg-white border border-gray-200 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-emerald-500" />
@@ -256,7 +256,7 @@ export default function SrtMergerTab() {
       </div>
 
       {/* Three Cards */}
-      <div className="max-w-6xl w-full mx-auto px-4 py-4 grid grid-cols-3 gap-4 flex-1 min-h-0">
+      <div className="w-full mx-auto px-6 py-4 grid grid-cols-3 gap-4 flex-1 min-h-0">
         {/* Card 1 — SRT Upload */}
         <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
