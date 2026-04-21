@@ -87,6 +87,24 @@ function hasGaps(entries: SRTEntry[]): boolean {
   return false;
 }
 
+function countGaps(entries: SRTEntry[]): number {
+  let count = 0;
+  for (let i = 0; i < entries.length - 1; i++) {
+    const currentEnd = timeToMs(entries[i].endTime);
+    const nextStart = timeToMs(entries[i + 1].startTime);
+    if (nextStart - currentEnd > GAP_THRESHOLD_MS) count++;
+  }
+  return count;
+}
+
+function countOverlaps(entries: SRTEntry[]): number {
+  let count = 0;
+  for (let i = 0; i < entries.length - 1; i++) {
+    if (timeToMs(entries[i].endTime) > timeToMs(entries[i + 1].startTime)) count++;
+  }
+  return count;
+}
+
 function closeGapsInEntries(entries: SRTEntry[]): SRTEntry[] {
   const result = entries.map((e) => ({ ...e }));
   for (let i = 0; i < result.length - 1; i++) {
@@ -263,8 +281,10 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
     toast({ title: "Gaps closed!", description: "Start times adjusted to remove gaps" });
   };
 
-  const overlapsExist = srtEntries.length > 1 && hasOverlaps(srtEntries);
-  const gapsExist = srtEntries.length > 1 && !overlapsExist && hasGaps(srtEntries);
+  const overlapCount = srtEntries.length > 1 ? countOverlaps(srtEntries) : 0;
+  const overlapsExist = overlapCount > 0;
+  const gapCount = srtEntries.length > 1 && !overlapsExist ? countGaps(srtEntries) : 0;
+  const gapsExist = gapCount > 0;
 
   const handleDownload = () => {
     if (outputEntries.length === 0) {
@@ -362,7 +382,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                     onClick={fixOverlap}
                     className="text-xs text-red-500 hover:text-red-600 font-medium border border-red-200 hover:border-red-400 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded transition-colors"
                   >
-                    Fix Overlap
+                    Fix Overlap ({overlapCount})
                   </button>
                 )}
                 {gapsExist && (
@@ -370,7 +390,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                     onClick={closeGaps}
                     className="text-xs text-orange-500 hover:text-orange-600 font-medium border border-orange-200 hover:border-orange-400 bg-orange-50 hover:bg-orange-100 px-2 py-0.5 rounded transition-colors"
                   >
-                    Close Gaps
+                    Close Gaps ({gapCount})
                   </button>
                 )}
                 <button
