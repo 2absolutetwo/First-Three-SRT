@@ -277,6 +277,18 @@ export default function SrtMergerTab() {
                     Fix Overlap
                   </button>
                 )}
+                <button
+                  onClick={() => {
+                    const text = srtEntries.map((e, i) => `(${i + 1}) ${e.text}`).join("\n");
+                    navigator.clipboard.writeText(text).then(
+                      () => toast({ title: "Copied", description: `Copied ${srtEntries.length} lines to clipboard` }),
+                      () => toast({ title: "Copy failed", description: "Could not copy to clipboard", variant: "destructive" })
+                    );
+                  }}
+                  className="text-xs text-gray-400 hover:text-blue-600 transition-colors"
+                >
+                  Copy all
+                </button>
                 <button onClick={clearSRT} className="text-xs text-gray-400 hover:text-red-500 transition-colors">
                   Clear all
                 </button>
