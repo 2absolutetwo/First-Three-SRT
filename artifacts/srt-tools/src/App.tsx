@@ -91,6 +91,9 @@ export default function App() {
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [filename, setFilename] = useState("");
   const [splitterIncomingKey, setSplitterIncomingKey] = useState(0);
+  const [videoIncomingSrt, setVideoIncomingSrt] = useState("");
+  const [videoIncomingSrtFilename, setVideoIncomingSrtFilename] = useState("");
+  const [videoIncomingSrtKey, setVideoIncomingSrtKey] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const saved = localStorage.getItem("srt-tools-theme");
@@ -191,6 +194,12 @@ export default function App() {
           incomingSrt={incomingSrtForSplitter}
           incomingFilename={filename || "from-editor.srt"}
           incomingKey={splitterIncomingKey}
+          onFinalOutput={(srt, name) => {
+            setVideoIncomingSrt(srt);
+            setVideoIncomingSrtFilename(name);
+            setVideoIncomingSrtKey((k) => k + 1);
+            setActiveTab("video");
+          }}
         />
       </div>
 
@@ -210,7 +219,11 @@ export default function App() {
 
       {/* Video Spliter — full width, hidden when inactive */}
       <div style={{ display: activeTab === "video" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
-        <VideoSplitterTab />
+        <VideoSplitterTab
+          incomingSrt={videoIncomingSrt}
+          incomingSrtFilename={videoIncomingSrtFilename}
+          incomingSrtKey={videoIncomingSrtKey}
+        />
       </div>
 
       {/* Other tabs */}

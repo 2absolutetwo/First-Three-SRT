@@ -9,9 +9,10 @@ interface Props {
   incomingSrt?: string;
   incomingFilename?: string;
   incomingKey?: number;
+  onFinalOutput?: (srt: string, filename: string) => void;
 }
 
-export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, incomingKey }: Props = {}) {
+export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, incomingKey, onFinalOutput }: Props = {}) {
   const [input, setInput] = useState("");
   const lastIncomingKey = useRef<number | undefined>(undefined);
   const [pasteText, setPasteText] = useState("");
@@ -22,6 +23,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
   const [dotDone, setDotDone] = useState(false);
   const [splitDone, setSplitDone] = useState(false);
   const [trimDone, setTrimDone] = useState(false);
+  const finalSentRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const inputBlocks = useMemo(() => parseInput(input), [input]);
@@ -39,6 +41,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
     setDotDone(false);
     setSplitDone(false);
     setTrimDone(false);
+    finalSentRef.current = false;
   };
 
   useEffect(() => {
@@ -47,6 +50,21 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
     lastIncomingKey.current = incomingKey;
     loadSrtText(incomingSrt, incomingFilename || "from-editor.srt");
   }, [incomingSrt, incomingFilename, incomingKey]);
+
+  useEffect(() => {
+    if (!onFinalOutput) return;
+    if (finalSentRef.current) return;
+    if (!splitDone || !trimDone || !dotDone) return;
+    if (outputBlocks.length === 0) return;
+    finalSentRef.current = true;
+    const srt = generateSrtString(outputBlocks);
+    const baseName = (fileName || "output.srt").replace(/\.(srt|txt)$/i, "");
+    onFinalOutput(srt, `${baseName || "output"}.srt`);
+    toast({
+      title: "Sent to Video Spliter",
+      description: "Final SRT auto-loaded into Video Spliter.",
+    });
+  }, [splitDone, trimDone, dotDone, outputBlocks, onFinalOutput, fileName, toast]);
 
   const handleFile = async (file: File) => {
     if (!file.name.toLowerCase().endsWith(".srt") && !file.name.toLowerCase().endsWith(".txt")) {
@@ -203,6 +221,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
     setDotDone(false);
     setSplitDone(false);
     setTrimDone(false);
+    finalSentRef.current = false;
   };
 
   return (

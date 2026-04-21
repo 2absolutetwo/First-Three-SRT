@@ -280,7 +280,7 @@ function UploadTile({
   );
 }
 
-function Home() {
+function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number }) {
   const { toast } = useToast();
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -296,6 +296,7 @@ function Home() {
   const [previewClip, setPreviewClip] = useState<ClipMeta | null>(null);
 
   const apiBase = `${import.meta.env.BASE_URL}api`.replace(/\/+$/, "");
+  const lastIncomingSrtKey = useRef<number | undefined>(undefined);
 
   // Poll status while job is active
   useEffect(() => {
@@ -329,6 +330,16 @@ function Home() {
       if (timer) clearTimeout(timer);
     };
   }, [job, apiBase, toast]);
+
+  useEffect(() => {
+    if (!incomingSrt || !incomingSrt.trim()) return;
+    if (incomingSrtKey === lastIncomingSrtKey.current) return;
+    lastIncomingSrtKey.current = incomingSrtKey;
+    const name = incomingSrtFilename || "from-time-spliter.srt";
+    const file = new File([incomingSrt], name, { type: "text/plain" });
+    void handleSrtChange(file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [incomingSrt, incomingSrtFilename, incomingSrtKey]);
 
   async function handleSrtChange(f: File | null) {
     setSrtFile(f);
@@ -717,11 +728,11 @@ function Home() {
   );
 }
 
-function App() {
+function App({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number } = {}) {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Home />
+        <Home incomingSrt={incomingSrt} incomingSrtFilename={incomingSrtFilename} incomingSrtKey={incomingSrtKey} />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
