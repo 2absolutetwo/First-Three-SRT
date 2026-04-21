@@ -1,12 +1,19 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { ChevronDown, ChevronUp, Copy, Download, FileText, Menu, Plus, Trash2, Upload, Clipboard, X } from "lucide-react";
 import { parseInput, processBlocks, mergeBlocksByMarkers, generateSrtString, msToTime, type SubtitleBlock } from "@/lib/srt-splitter";
 import { useToast } from "@/hooks/use-toast";
 
-export default function SrtTimeSplitterTab() {
+interface Props {
+  incomingSrt?: string;
+  incomingFilename?: string;
+  incomingKey?: number;
+}
+
+export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, incomingKey }: Props = {}) {
   const [input, setInput] = useState("");
+  const lastIncomingKey = useRef<number | undefined>(undefined);
   const [pasteText, setPasteText] = useState("");
   const [showPasteBox, setShowPasteBox] = useState(false);
   const [outputBlocks, setOutputBlocks] = useState<SubtitleBlock[]>([]);
@@ -31,6 +38,13 @@ export default function SrtTimeSplitterTab() {
     setDotDone(false);
     setSplitDone(false);
   };
+
+  useEffect(() => {
+    if (!incomingSrt || !incomingSrt.trim()) return;
+    if (incomingKey === lastIncomingKey.current) return;
+    lastIncomingKey.current = incomingKey;
+    loadSrtText(incomingSrt, incomingFilename || "from-editor.srt");
+  }, [incomingSrt, incomingFilename, incomingKey]);
 
   const handleFile = async (file: File) => {
     if (!file.name.toLowerCase().endsWith(".srt") && !file.name.toLowerCase().endsWith(".txt")) {

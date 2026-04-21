@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { type Subtitle } from "@/lib/srt";
+import { useMemo, useState } from "react";
+import { type Subtitle, formatSrt } from "@/lib/srt";
 import SrtEditorTab from "@/tabs/SrtEditorTab";
 import SrtConverterTab from "@/tabs/SrtConverterTab";
 import SrtMakerTab from "@/tabs/SrtMakerTab";
@@ -90,8 +90,21 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>("merger");
   const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const [filename, setFilename] = useState("");
+  const [splitterIncomingKey, setSplitterIncomingKey] = useState(0);
 
   const hasFile = subtitles.length > 0;
+
+  const incomingSrtForSplitter = useMemo(
+    () => (subtitles.length > 0 ? formatSrt(subtitles) : ""),
+    [subtitles]
+  );
+
+  const handleSelectTab = (id: Tab) => {
+    if (id === "splitter" && subtitles.length > 0) {
+      setSplitterIncomingKey((k) => k + 1);
+    }
+    setActiveTab(id);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-100 overflow-hidden">
@@ -115,7 +128,7 @@ export default function App() {
             {TABS.map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleSelectTab(tab.id)}
                 className={`flex items-center gap-1 px-2 py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
                   activeTab === tab.id
                     ? "border-blue-600 text-blue-600"
@@ -143,7 +156,11 @@ export default function App() {
 
       {/* SRT Time Spliter — full width, hidden when inactive */}
       <div style={{ display: activeTab === "splitter" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
-        <SrtTimeSplitterTab />
+        <SrtTimeSplitterTab
+          incomingSrt={incomingSrtForSplitter}
+          incomingFilename={filename || "from-editor.srt"}
+          incomingKey={splitterIncomingKey}
+        />
       </div>
 
       {/* SRT Marger — full width, hidden when inactive */}
@@ -176,7 +193,7 @@ export default function App() {
             filename={filename}
             setSubtitles={setSubtitles}
             setFilename={setFilename}
-            onNext={() => setActiveTab("converter")}
+            onNext={() => handleSelectTab("converter")}
           />
         )}
         {activeTab === "converter" && (
