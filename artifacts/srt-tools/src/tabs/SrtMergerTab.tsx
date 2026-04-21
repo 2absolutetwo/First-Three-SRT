@@ -357,19 +357,6 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated, o
         </div>
         <div className="flex gap-2">
           <Button
-            onClick={() => {
-              if (onTransform) {
-                onTransform();
-              } else {
-                toast({ title: "Transform", description: "Transform action not configured" });
-              }
-            }}
-            className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-7 px-2.5 gap-1 rounded-md shadow-sm"
-          >
-            <span className="text-sm leading-none">💫</span>
-            Transform
-          </Button>
-          <Button
             onClick={runGenerate}
             className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-7 px-2.5 gap-1 rounded-md shadow-sm"
           >
