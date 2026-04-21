@@ -139,7 +139,7 @@ export default function App() {
       </div>
 
       {/* SRT Marger — full width, hidden when inactive */}
-      <div style={{ display: activeTab === "merger" ? "flex" : "none" }} className="flex-col flex-1 overflow-hidden">
+      <div style={{ display: activeTab === "merger" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
         <SrtMergerTab />
       </div>
 

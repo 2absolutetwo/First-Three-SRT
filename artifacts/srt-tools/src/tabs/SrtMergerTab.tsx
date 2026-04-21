@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from "react";
-import { Upload, Download, Sparkles, ChevronUp, ChevronDown, Plus, Trash2, FileText } from "lucide-react";
+import { Upload, Download, Sparkles, X, ChevronUp, ChevronDown, Plus, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -215,12 +215,12 @@ export default function SrtMergerTab() {
   const matchCount = Math.min(srtEntries.length, sentences.length);
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 bg-[#f5f7fa] font-sans">
+    <div className="min-h-screen bg-[#f5f7fa] font-sans">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between flex-shrink-0">
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-emerald-500" />
-          <span className="font-semibold text-gray-800 text-sm">SRT Marger</span>
+          <span className="font-semibold text-gray-800 text-sm">SRT Merger</span>
           {matchCount > 0 && (
             <span className="ml-2 bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs px-2 py-0.5 rounded-full font-medium">
               ✓ {matchCount} lines matched
@@ -253,9 +253,9 @@ export default function SrtMergerTab() {
       </div>
 
       {/* Three Cards */}
-      <div className="p-4 grid grid-cols-3 gap-4 flex-1 min-h-0 overflow-hidden">
+      <div className="p-4 grid grid-cols-3 gap-4 h-[calc(100vh-56px)]">
         {/* Card 1 — SRT Upload */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden min-h-0">
+        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">1</span>
@@ -282,6 +282,7 @@ export default function SrtMergerTab() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            {/* Drop Zone */}
             {srtEntries.length === 0 ? (
               <div
                 className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
@@ -310,12 +311,14 @@ export default function SrtMergerTab() {
               </div>
             ) : (
               <>
+                {/* File name badge */}
                 <div className="flex items-center gap-2 px-2 py-1.5 bg-emerald-50 rounded-lg border border-emerald-100 mb-2">
                   <FileText className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
                   <span className="text-xs text-emerald-700 font-medium truncate">{fileName}</span>
                   <span className="ml-auto text-xs text-emerald-500">{srtEntries.length} entries</span>
                 </div>
 
+                {/* Subtitle cards */}
                 {srtEntries.map((entry, i) => {
                   const nextEntry = srtEntries[i + 1];
                   const isOverlapping = nextEntry
@@ -377,6 +380,7 @@ export default function SrtMergerTab() {
                   );
                 })}
 
+                {/* Add more button */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="w-full text-xs text-gray-400 hover:text-emerald-500 py-2 transition-colors"
@@ -396,7 +400,7 @@ export default function SrtMergerTab() {
         </div>
 
         {/* Card 2 — Sentence Input */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden min-h-0">
+        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">2</span>
@@ -468,6 +472,7 @@ export default function SrtMergerTab() {
                   </div>
                 ))}
 
+                {/* Add more sentences */}
                 <div className="mt-2 pt-3 border-t border-dashed border-gray-200">
                   <p className="text-xs text-gray-400 mb-1.5 font-medium">+ Add more sentences (from {sentences.length + 1})</p>
                   <Textarea
@@ -496,7 +501,7 @@ export default function SrtMergerTab() {
         </div>
 
         {/* Card 3 — Output SRT */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden min-h-0">
+        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">3</span>
@@ -547,6 +552,7 @@ export default function SrtMergerTab() {
                     <p className="text-sm text-gray-800 ml-7 leading-relaxed">{entry.newText}</p>
                   </div>
                 ))}
+                {/* Mismatch warning */}
                 {srtEntries.length > 0 && sentences.length > 0 && srtEntries.length !== sentences.length && (
                   <div className={`rounded-lg p-2.5 text-xs border ${
                     srtEntries.length > sentences.length
