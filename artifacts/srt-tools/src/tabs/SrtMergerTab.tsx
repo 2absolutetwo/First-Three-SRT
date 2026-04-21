@@ -347,17 +347,17 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 toast({ title: "SRT Generated!", description: `${outputEntries.length} subtitles merged → sent to SRT Editor` });
               }
             }}
-            className="bg-orange-500 hover:bg-orange-600 text-white text-sm h-8 px-3 gap-1.5"
+            className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-7 px-2.5 gap-1 rounded-md shadow-sm"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            Generate SRT
+            <Sparkles className="w-3 h-3" />
+            Generate
           </Button>
           <Button
             onClick={handleDownload}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-8 px-3 gap-1.5"
+            className="bg-blue-600 hover:bg-blue-700 text-white text-xs h-7 px-2.5 gap-1 rounded-md shadow-sm"
           >
-            <Download className="w-3.5 h-3.5" />
-            Download SRT
+            <Download className="w-3 h-3" />
+            Download
           </Button>
         </div>
       </div>
