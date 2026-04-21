@@ -4,8 +4,9 @@ import SrtEditorTab from "@/tabs/SrtEditorTab";
 import SrtConverterTab from "@/tabs/SrtConverterTab";
 import SrtMakerTab from "@/tabs/SrtMakerTab";
 import SrtNoteTab from "@/tabs/SrtNoteTab";
+import SrtTimeSplitterTab from "@/tabs/SrtTimeSplitterTab";
 
-type Tab = "editor" | "converter" | "maker" | "note";
+type Tab = "editor" | "converter" | "maker" | "note" | "splitter";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -41,6 +42,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+      </svg>
+    ),
+  },
+  {
+    id: "splitter",
+    label: "SRT Time Spliter",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
       </svg>
     ),
   },
@@ -103,9 +113,14 @@ export default function App() {
         <SrtNoteTab />
       </div>
 
+      {/* SRT Time Spliter — full width, hidden when inactive */}
+      <div style={{ display: activeTab === "splitter" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
+        <SrtTimeSplitterTab />
+      </div>
+
       {/* Other tabs */}
       <main
-        style={{ display: activeTab === "maker" || activeTab === "note" ? "none" : "block" }}
+        style={{ display: activeTab === "maker" || activeTab === "note" || activeTab === "splitter" ? "none" : "block" }}
         className="max-w-5xl mx-auto px-4 py-5 flex-1 overflow-y-auto w-full"
       >
         {activeTab === "editor" && (
