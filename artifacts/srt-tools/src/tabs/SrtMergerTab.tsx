@@ -697,7 +697,26 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
               <Textarea
                 value={notepadText}
                 onChange={(e) => setNotepadText(e.target.value)}
-                placeholder="Write anything here..."
+                onPaste={(e) => {
+                  const pasted = e.clipboardData.getData("text");
+                  if (!pasted) return;
+                  const parsed = parseSRT(pasted);
+                  if (parsed.length === 0) return;
+                  e.preventDefault();
+                  const converted = parsed
+                    .map((entry, i) => `(${i + 1}) ${entry.text.replace(/\n/g, " ")}`)
+                    .join("\n");
+                  const target = e.currentTarget;
+                  const start = target.selectionStart ?? notepadText.length;
+                  const end = target.selectionEnd ?? notepadText.length;
+                  const before = notepadText.slice(0, start);
+                  const after = notepadText.slice(end);
+                  const needsLeadingNl = before.length > 0 && !before.endsWith("\n");
+                  const insert = (needsLeadingNl ? "\n" : "") + converted;
+                  setNotepadText(before + insert + after);
+                  toast({ title: "Converted", description: `${parsed.length} SRT entries → sentences` });
+                }}
+                placeholder="Paste SRT here — it will auto-convert to numbered sentences. Or write any quick notes."
                 className="w-full h-full text-sm resize-none border-gray-200 focus:border-emerald-400 focus:ring-emerald-400"
               />
             </div>
