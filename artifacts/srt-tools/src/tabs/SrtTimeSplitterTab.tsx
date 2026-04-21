@@ -21,6 +21,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
   const [isDragging, setIsDragging] = useState(false);
   const [dotDone, setDotDone] = useState(false);
   const [splitDone, setSplitDone] = useState(false);
+  const [trimDone, setTrimDone] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const inputBlocks = useMemo(() => parseInput(input), [input]);
@@ -37,6 +38,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
     setShowPasteBox(false);
     setDotDone(false);
     setSplitDone(false);
+    setTrimDone(false);
   };
 
   useEffect(() => {
@@ -162,6 +164,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
   };
 
   const handleTrimEnd10 = () => {
+    if (trimDone) return;
     if (outputBlocks.length === 0) {
       toast({
         title: "Run Split Lines first",
@@ -176,6 +179,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
         endTime: Math.max(b.startTime, b.endTime - 10),
       }))
     );
+    setTrimDone(true);
     toast({
       title: "Trimmed -10ms",
       description: "Every card's end time reduced by 10 milliseconds.",
@@ -198,6 +202,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
     setShowPasteBox(false);
     setDotDone(false);
     setSplitDone(false);
+    setTrimDone(false);
   };
 
   return (
@@ -218,7 +223,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
               onClick={handleTrimEnd10}
               disabled={outputBlocks.length === 0}
               title="Trim 10ms from every card's end time"
-              className="h-9 rounded-lg bg-gradient-to-b from-rose-500 to-rose-700 px-3.5 text-xs font-semibold tracking-wide text-white shadow-[0_3px_10px_rgba(190,18,60,0.28)] ring-1 ring-white/15 transition-all duration-200 hover:-translate-y-px hover:from-rose-600 hover:to-rose-800 hover:shadow-[0_5px_14px_rgba(190,18,60,0.32)] disabled:opacity-50"
+              className={`h-9 rounded-lg bg-gradient-to-b from-rose-500 to-rose-700 px-3.5 text-xs font-semibold tracking-wide text-white shadow-[0_3px_10px_rgba(190,18,60,0.28)] ring-1 ring-white/15 transition-all duration-200 hover:-translate-y-px hover:from-rose-600 hover:to-rose-800 hover:shadow-[0_5px_14px_rgba(190,18,60,0.32)] disabled:opacity-50 ${trimDone ? "opacity-60 hover:opacity-60" : ""}`}
             >
               -10
             </Button>
