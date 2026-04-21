@@ -442,7 +442,25 @@ function Home() {
                 Video Spliter
               </h1>
               <p className="text-[11px] text-slate-500 leading-tight">
-                One clip per subtitle line · 6 in parallel
+                {job ? (
+                  <>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                      {doneCount}
+                    </span>{" "}
+                    of {total} clips ready
+                    {errorCount > 0 && (
+                      <span className="text-red-500"> · {errorCount} failed</span>
+                    )}
+                    {status?.finished && doneCount === total && (
+                      <span className="text-emerald-600 dark:text-emerald-400">
+                        {" "}
+                        · all done
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>One clip per subtitle line</>
+                )}
               </p>
             </div>
           </div>
@@ -553,35 +571,13 @@ function Home() {
         {/* Job progress bar */}
         {job && (
           <div className="mt-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-4 shadow-sm">
-            <div className="flex items-center justify-between mb-2">
-              <div className="min-w-0">
-                <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
-                  {job.baseName}
-                </h2>
-                <p className="text-xs text-slate-500">
-                  <span className="font-semibold text-slate-700 dark:text-slate-200">
-                    {doneCount}
-                  </span>{" "}
-                  of {total} ready
-                  {errorCount > 0 && (
-                    <span className="text-red-500"> · {errorCount} failed</span>
-                  )}
-                  {status?.finished && doneCount === total && (
-                    <span className="text-emerald-600 dark:text-emerald-400">
-                      {" "}
-                      · all done
-                    </span>
-                  )}
-                </p>
-              </div>
-              <div className="font-mono text-xs text-slate-500 shrink-0 ml-3">
-                {overallPct}%
-              </div>
+            <div className="flex items-center justify-between mb-2 text-xs text-slate-500">
+              <span>Progress</span>
+              <span className="font-mono">{overallPct}%</span>
             </div>
             <Progress value={overallPct} />
           </div>
         )}
-
 
         {/* Clip grid */}
         {job && (
