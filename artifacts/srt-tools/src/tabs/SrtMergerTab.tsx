@@ -335,6 +335,15 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
         <div className="flex gap-2">
           <Button
             onClick={() => {
+              toast({ title: "Transform", description: "Transform action not configured yet" });
+            }}
+            className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-7 px-2.5 gap-1 rounded-md shadow-sm"
+          >
+            <span className="text-sm leading-none">💫</span>
+            Transform
+          </Button>
+          <Button
+            onClick={() => {
               if (outputEntries.length === 0) {
                 toast({ title: "Not ready", description: "Upload SRT and add sentences first", variant: "destructive" });
               } else {
