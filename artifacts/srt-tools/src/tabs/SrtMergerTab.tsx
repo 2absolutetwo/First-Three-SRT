@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
-import { Upload, Download, Sparkles, X, ChevronUp, ChevronDown, Plus, Trash2, FileText } from "lucide-react";
+import { Upload, Download, Sparkles, X, ChevronUp, ChevronDown, Plus, Trash2, FileText, Scissors, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
@@ -112,6 +112,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
   const [fileName, setFileName] = useState("");
   const [showNotepad, setShowNotepad] = useState(false);
   const [notepadText, setNotepadText] = useState("");
+  const [notepadSplit, setNotepadSplit] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -686,6 +687,15 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 })()}
                 {notepadText && (
                   <button
+                    onClick={() => setNotepadSplit((v) => !v)}
+                    className={`p-1 rounded transition-colors ${notepadSplit ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" : "hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"}`}
+                    title={notepadSplit ? "Exit split view" : "Split into 40-line chunks"}
+                  >
+                    <Scissors className="w-4 h-4" />
+                  </button>
+                )}
+                {notepadText && (
+                  <button
                     onClick={() => setNotepadText("")}
                     className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                   >
@@ -701,7 +711,42 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 </button>
               </div>
             </div>
-            <div className="flex-1 p-3 min-h-0">
+            <div className="flex-1 p-3 min-h-0 overflow-auto">
+              {notepadSplit && notepadText ? (
+                <div className="flex flex-col gap-3">
+                  {(() => {
+                    const lines = notepadText.split("\n");
+                    const CHUNK = 40;
+                    const chunks: { start: number; end: number; text: string }[] = [];
+                    for (let i = 0; i < lines.length; i += CHUNK) {
+                      const slice = lines.slice(i, i + CHUNK);
+                      chunks.push({ start: i + 1, end: i + slice.length, text: slice.join("\n") });
+                    }
+                    return chunks.map((c, idx) => (
+                      <div key={idx} className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800/40 overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                          <div className="text-xs text-gray-600 dark:text-gray-300">
+                            <span className="font-semibold">{c.start}–{c.end}</span>
+                            <span className="text-gray-400 dark:text-gray-500 ml-2">{c.end - c.start + 1} lines</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(c.text);
+                              toast({ title: "Copied", description: `Lines ${c.start}–${c.end}` });
+                            }}
+                            className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 px-2 py-0.5 rounded hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+                            title="Copy this chunk"
+                          >
+                            <Copy className="w-3 h-3" />
+                            Copy
+                          </button>
+                        </div>
+                        <pre className="p-3 text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap font-sans">{c.text}</pre>
+                      </div>
+                    ));
+                  })()}
+                </div>
+              ) : (
               <Textarea
                 value={notepadText}
                 onChange={(e) => setNotepadText(e.target.value)}
@@ -727,6 +772,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 placeholder="Paste SRT here — it will auto-convert to numbered sentences. Or write any quick notes."
                 className="w-full h-full text-sm resize-none border-gray-200 dark:border-gray-700 focus:border-emerald-400 focus:ring-emerald-400"
               />
+              )}
             </div>
           </div>
         </div>
