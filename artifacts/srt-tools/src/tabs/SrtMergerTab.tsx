@@ -76,6 +76,31 @@ function fixOverlapsInEntries(entries: SRTEntry[]): SRTEntry[] {
   });
 }
 
+const GAP_THRESHOLD_MS = 1;
+
+function hasGaps(entries: SRTEntry[]): boolean {
+  for (let i = 0; i < entries.length - 1; i++) {
+    const currentEnd = timeToMs(entries[i].endTime);
+    const nextStart = timeToMs(entries[i + 1].startTime);
+    if (nextStart - currentEnd > GAP_THRESHOLD_MS) return true;
+  }
+  return false;
+}
+
+function closeGapsInEntries(entries: SRTEntry[]): SRTEntry[] {
+  const result = entries.map((e) => ({ ...e }));
+  for (let i = 0; i < result.length - 1; i++) {
+    const currentEnd = timeToMs(result[i].endTime);
+    const nextStart = timeToMs(result[i + 1].startTime);
+    if (nextStart - currentEnd > GAP_THRESHOLD_MS) {
+      const nextEnd = timeToMs(result[i + 1].endTime);
+      const newStart = Math.min(currentEnd + 1, nextEnd - 1);
+      result[i + 1].startTime = msToTime(newStart);
+    }
+  }
+  return result;
+}
+
 function stripLeadingNumber(line: string): string {
   return line.replace(
     /^\s*[\(\[\{]?\s*\d+\s*[\)\]\}\.\:\-–—]\s*/,
@@ -232,7 +257,14 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
     toast({ title: "Overlaps fixed!", description: "End times adjusted to remove overlaps" });
   };
 
+  const closeGaps = () => {
+    const fixed = closeGapsInEntries(srtEntries);
+    setSrtEntries(fixed);
+    toast({ title: "Gaps closed!", description: "Start times adjusted to remove gaps" });
+  };
+
   const overlapsExist = srtEntries.length > 1 && hasOverlaps(srtEntries);
+  const gapsExist = srtEntries.length > 1 && !overlapsExist && hasGaps(srtEntries);
 
   const handleDownload = () => {
     if (outputEntries.length === 0) {
@@ -328,9 +360,17 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 {overlapsExist && (
                   <button
                     onClick={fixOverlap}
-                    className="text-xs text-orange-500 hover:text-orange-600 font-medium border border-orange-200 hover:border-orange-400 bg-orange-50 hover:bg-orange-100 px-2 py-0.5 rounded transition-colors"
+                    className="text-xs text-red-500 hover:text-red-600 font-medium border border-red-200 hover:border-red-400 bg-red-50 hover:bg-red-100 px-2 py-0.5 rounded transition-colors"
                   >
                     Fix Overlap
+                  </button>
+                )}
+                {gapsExist && (
+                  <button
+                    onClick={closeGaps}
+                    className="text-xs text-orange-500 hover:text-orange-600 font-medium border border-orange-200 hover:border-orange-400 bg-orange-50 hover:bg-orange-100 px-2 py-0.5 rounded transition-colors"
+                  >
+                    Close Gaps
                   </button>
                 )}
                 <button
@@ -392,27 +432,42 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 {/* Subtitle cards */}
                 {srtEntries.map((entry, i) => {
                   const nextEntry = srtEntries[i + 1];
-                  const isOverlapping = nextEntry
-                    ? timeToMs(entry.endTime) > timeToMs(nextEntry.startTime)
-                    : false;
+                  const currentEndMs = timeToMs(entry.endTime);
+                  const nextStartMs = nextEntry ? timeToMs(nextEntry.startTime) : null;
+                  const isOverlapping = nextStartMs !== null && currentEndMs > nextStartMs;
+                  const hasGap =
+                    nextStartMs !== null &&
+                    !isOverlapping &&
+                    nextStartMs - currentEndMs > GAP_THRESHOLD_MS;
                   return (
                   <div key={i} className={`border rounded-lg p-3 transition-colors ${
                     isOverlapping
                       ? "border-red-200 bg-red-50/40 hover:bg-red-50"
-                      : "border-gray-100 bg-gray-50/50 hover:bg-white"
+                      : hasGap
+                        ? "border-orange-200 bg-orange-50/40 hover:bg-orange-50"
+                        : "border-gray-100 bg-gray-50/50 hover:bg-white"
                   }`}>
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <span className={`w-5 h-5 rounded text-xs flex items-center justify-center font-bold flex-shrink-0 ${
-                          isOverlapping ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
+                          isOverlapping
+                            ? "bg-red-100 text-red-600"
+                            : hasGap
+                              ? "bg-orange-100 text-orange-600"
+                              : "bg-blue-100 text-blue-600"
                         }`}>
                           {i + 1}
                         </span>
                         <span className={`text-xs font-mono tabular-nums truncate ${
-                          isOverlapping ? "text-red-500" : "text-gray-500"
+                          isOverlapping
+                            ? "text-red-500"
+                            : hasGap
+                              ? "text-orange-500"
+                              : "text-gray-500"
                         }`}>
                           {entry.startTime} → {entry.endTime}
                           {isOverlapping && <span className="ml-1 text-red-400">⚠</span>}
+                          {hasGap && <span className="ml-1 text-orange-400">⌛</span>}
                         </span>
                       </div>
                       <div className="flex items-center gap-0.5 flex-shrink-0">
