@@ -373,7 +373,7 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
                   <X className="h-3.5 w-3.5" /> Clear
                 </Button>
                 <Button variant="ghost" onClick={() => fileInputRef.current?.click()} className="h-8 rounded-lg border border-slate-200 bg-white dark:bg-gray-900 px-3 text-xs font-semibold text-slate-500 shadow-sm hover:bg-slate-50 hover:text-slate-800">
-                  📝 Load Note
+                  <Upload className="h-3.5 w-3.5" /> 📝 Load Note
                 </Button>
                 <input ref={fileInputRef} type="file" accept=".srt,.txt" onChange={handleFileUpload} className="hidden" />
               </div>
