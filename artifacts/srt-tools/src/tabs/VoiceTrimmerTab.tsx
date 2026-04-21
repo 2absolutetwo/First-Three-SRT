@@ -37,7 +37,7 @@ export default function VoiceTrimmerTab() {
   const splitDisabled = splitStage === "trimming" || readyCount === 0;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="max-w-3xl mx-auto w-full px-6 py-5 flex flex-col gap-3">
       <UploadBox onFiles={addFiles} />
 
       <div
