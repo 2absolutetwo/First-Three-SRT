@@ -215,24 +215,22 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
   const handleRunAll = () => {
     if (!hasInput) return;
     try {
-      const dottedInput = input.replace(/✅/g, ".");
-      setInput(dottedInput);
-      setDotDone(true);
-
-      const parsed = parseInput(dottedInput);
+      const parsed = parseInput(input);
       const cutBlocks = processBlocks(parsed);
       const merged = mergeBlocksByMarkers(cutBlocks);
-      const trimmed = merged.map(b => ({
+      const processed = merged.map(b => ({
         ...b,
-        text: b.text.replace(/✅/g, "."),
         endTime: Math.max(b.startTime, b.endTime - 10),
+        text: b.text.replace(/✅/g, "."),
       }));
-      setOutputBlocks(trimmed);
+      setInput(prev => prev.replace(/✅/g, "."));
+      setOutputBlocks(processed);
       setSplitDone(true);
       setTrimDone(true);
+      setDotDone(true);
       toast({
         title: "All steps applied",
-        description: `${trimmed.length} cards created, ✅ → . , -10ms trimmed.`,
+        description: `${processed.length} cards created, -10ms trimmed, ✅ → .`,
       });
     } catch {
       toast({
