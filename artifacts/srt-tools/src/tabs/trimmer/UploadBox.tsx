@@ -23,7 +23,7 @@ export default function UploadBox({ onFiles }: UploadBoxProps) {
     <div
       className="rounded-xl cursor-pointer select-none transition-all"
       style={{
-        background: dragging ? "hsl(185,65%,36%,0.04)" : "white",
+        background: dragging ? "rgba(15,160,155,0.04)" : "white",
         border: dragging ? "1.5px dashed hsl(185,65%,50%)" : "1.5px dashed hsl(220,15%,82%)",
         boxShadow: "0 1px 4px rgba(0,0,0,0.06)",
         padding: "20px 24px",
@@ -43,10 +43,10 @@ export default function UploadBox({ onFiles }: UploadBoxProps) {
       />
       <div className="flex items-center gap-4">
         <div
-          className="p-3 rounded-xl shrink-0"
-          style={{ background: dragging ? "hsl(185,65%,36%,0.12)" : "hsl(220,15%,96%)" }}
+          className="p-3 rounded-xl shrink-0 transition-all"
+          style={{ background: dragging ? "rgba(15,160,155,0.12)" : "hsl(220,15%,96%)" }}
         >
-          <Music2 className="w-5 h-5" style={{ color: dragging ? "hsl(185,65%,36%)" : "hsl(220,10%,55%)" }} />
+          <Music2 className="w-5 h-5 transition-colors" style={{ color: dragging ? "hsl(185,65%,36%)" : "hsl(220,10%,55%)" }} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold" style={{ color: "hsl(220,20%,20%)" }}>
@@ -57,7 +57,7 @@ export default function UploadBox({ onFiles }: UploadBoxProps) {
           </p>
         </div>
         <div
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium shrink-0 transition-all"
           style={{
             background: dragging ? "hsl(185,65%,36%)" : "hsl(220,15%,94%)",
             color: dragging ? "white" : "hsl(220,20%,40%)",

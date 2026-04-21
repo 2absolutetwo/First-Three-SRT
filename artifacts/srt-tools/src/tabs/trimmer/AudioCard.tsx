@@ -27,6 +27,7 @@ function Waveform({ data, duration, playProgress }: {
   playProgress: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || data.length === 0) return;
@@ -75,6 +76,7 @@ function Waveform({ data, duration, playProgress }: {
       ctx.fillRect(playX - 1, 3, 2, H - 6);
     }
   }, [data, duration, playProgress]);
+
   return (
     <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
   );
@@ -84,6 +86,7 @@ function usePlayer(file: File | Blob) {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     const url = URL.createObjectURL(file);
     const el = new Audio(url);
@@ -94,12 +97,14 @@ function usePlayer(file: File | Blob) {
     el.addEventListener("ended", () => { setPlaying(false); setCurrentTime(0); });
     return () => { el.pause(); URL.revokeObjectURL(url); };
   }, [file]);
+
   const toggle = () => {
     const el = audioRef.current;
     if (!el) return;
     if (playing) { el.pause(); setPlaying(false); }
     else { el.play(); setPlaying(true); }
   };
+
   return { playing, currentTime, toggle };
 }
 
@@ -114,9 +119,11 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
   const endSilenceDuration = audio.silence ? audio.duration - audio.silence.endSilenceStart : 0;
   const startSilenceDuration = audio.silence?.startSilenceEnd ?? 0;
   const totalCutDuration = startSilenceDuration + endSilenceDuration;
+
   const timeMarkers = activeDuration > 0
     ? [0, activeDuration * 0.25, activeDuration * 0.5, activeDuration * 0.75, activeDuration].map(formatSec)
     : [];
+
   const handleDownload = () => {
     if (!audio.trimmedBlob) return;
     const url = URL.createObjectURL(audio.trimmedBlob);
@@ -127,17 +134,19 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
+
   return (
     <div
-      className="rounded-xl overflow-hidden transition-all"
+      className="rounded-xl overflow-hidden transition-all duration-300"
       style={{
         background: "white",
         border: showTrimmed ? "1px solid hsl(185,65%,70%)" : "1px solid hsl(220,15%,88%)",
         boxShadow: showTrimmed ? "0 1px 6px rgba(15,160,155,0.12)" : "0 1px 3px rgba(0,0,0,0.06)",
       }}
     >
+      {/* Header */}
       <div
         className="flex items-center justify-between px-3 py-1.5"
         style={{
@@ -199,9 +208,9 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
             onClick={activePlayer.toggle}
             disabled={audio.status !== "ready"}
             className="w-6 h-6 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-            style={{ background: "hsl(185,65%,36%,0.10)" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(185,65%,36%,0.20)")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "hsl(185,65%,36%,0.10)")}
+            style={{ background: "rgba(15,160,155,0.10)" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(15,160,155,0.20)")}
+            onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(15,160,155,0.10)")}
           >
             {activePlayer.playing
               ? <Pause className="w-3 h-3" style={{ color: "hsl(185,65%,36%)" }} />
@@ -211,13 +220,16 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
           <button
             onClick={() => onRemove(audio.id)}
             className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
-            onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(0,72%,51%,0.10)")}
+            style={{ background: "transparent" }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.10)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
             <Trash2 className="w-3 h-3" style={{ color: "hsl(220,10%,65%)" }} />
           </button>
         </div>
       </div>
+
+      {/* Waveform */}
       <div className="relative" style={{ height: "62px", background: "#f8fafc" }}>
         {audio.status === "analyzing" && (
           <div className="absolute inset-0 flex items-center justify-center gap-1">
@@ -240,6 +252,7 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
             <Waveform data={activeWaveform} duration={activeDuration} playProgress={playProgress} />
           </div>
         )}
+        {/* Silence preview overlays */}
         {splitStage === "preview" && audio.status === "ready" && audio.silence && !audio.isTrimmed && (
           <>
             {startSilenceDuration > 0.05 && (
@@ -254,16 +267,18 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
                 <span className="text-[9px] font-mono text-red-400">-{formatSec(startSilenceDuration)}</span>
               </div>
             )}
-            <div
-              className="absolute top-0 bottom-0 right-0 flex items-center justify-center"
-              style={{
-                width: `${(endSilenceDuration / audio.duration) * 100}%`,
-                background: "rgba(239,68,68,0.12)",
-                borderLeft: "1.5px dashed rgba(239,68,68,0.5)",
-              }}
-            >
-              <span className="text-[9px] font-mono text-red-400">-{formatSec(endSilenceDuration)}</span>
-            </div>
+            {endSilenceDuration > 0.05 && (
+              <div
+                className="absolute top-0 bottom-0 right-0 flex items-center justify-center"
+                style={{
+                  width: `${(endSilenceDuration / audio.duration) * 100}%`,
+                  background: "rgba(239,68,68,0.12)",
+                  borderLeft: "1.5px dashed rgba(239,68,68,0.5)",
+                }}
+              >
+                <span className="text-[9px] font-mono text-red-400">-{formatSec(endSilenceDuration)}</span>
+              </div>
+            )}
             <div
               className="absolute bottom-1 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded text-[9px] font-medium flex items-center gap-1"
               style={{ background: "rgba(239,68,68,0.10)", color: "#ef4444" }}
@@ -274,6 +289,8 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
           </>
         )}
       </div>
+
+      {/* Time markers */}
       {audio.status === "ready" && activeDuration > 0 && (
         <div
           className="flex justify-between px-2 pt-0.5 pb-1"

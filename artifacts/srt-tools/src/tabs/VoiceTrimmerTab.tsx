@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useAudioAnalysis } from "@/hooks/useAudioAnalysis";
 import UploadBox from "@/tabs/trimmer/UploadBox";
 import AudioCard from "@/tabs/trimmer/AudioCard";
-import { Scissors, Trash2, Download } from "lucide-react";
+import DownloadPanel from "@/tabs/trimmer/DownloadPanel";
+import { Scissors, Trash2 } from "lucide-react";
 
 type SplitStage = "idle" | "preview" | "trimming" | "done";
 
@@ -40,19 +41,15 @@ export default function VoiceTrimmerTab() {
     <div className="max-w-3xl mx-auto w-full px-6 py-5 flex flex-col gap-3">
       <UploadBox onFiles={addFiles} />
 
-      <div
-        className="rounded-xl flex items-center justify-between px-5 py-3"
-        style={{
-          background: "white",
-          border: "1px solid hsl(220,15%,90%)",
-          boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-        }}
-      >
+      {/* Controls bar */}
+      <div className="rounded-xl flex items-center justify-between px-5 py-3" style={{
+        background: "white",
+        border: "1px solid hsl(220,15%,90%)",
+        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+      }}>
         <div>
           {audioFiles.length === 0 ? (
-            <p className="text-xs" style={{ color: "hsl(220,10%,62%)" }}>
-              Upload files to enable controls
-            </p>
+            <p className="text-xs" style={{ color: "hsl(220,10%,62%)" }}>Upload files to enable controls</p>
           ) : splitStage === "done" ? (
             <p className="text-xs" style={{ color: "hsl(185,65%,34%)" }}>
               ✓ {trimmedCount} file{trimmedCount !== 1 ? "s" : ""} trimmed — download each below
@@ -67,20 +64,25 @@ export default function VoiceTrimmerTab() {
             </p>
           )}
         </div>
-
         <div className="flex items-center gap-2">
           <button
             onClick={handleClear}
             disabled={audioFiles.length === 0}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all disabled:opacity-35 disabled:cursor-not-allowed"
             style={{ background: "hsl(220,15%,94%)", color: "hsl(220,20%,40%)" }}
-            onMouseEnter={(e) => { if (!e.currentTarget.disabled) { e.currentTarget.style.background = "hsl(0,72%,51%,0.10)"; e.currentTarget.style.color = "#ef4444"; } }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = "hsl(220,15%,94%)"; e.currentTarget.style.color = "hsl(220,20%,40%)"; }}
+            onMouseEnter={(e) => {
+              if (!e.currentTarget.disabled) {
+                e.currentTarget.style.background = "rgba(239,68,68,0.10)";
+                e.currentTarget.style.color = "#ef4444";
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "hsl(220,15%,94%)";
+              e.currentTarget.style.color = "hsl(220,20%,40%)";
+            }}
           >
-            <Trash2 className="w-3 h-3" />
-            Clear All
+            <Trash2 className="w-3 h-3" /> Clear All
           </button>
-
           {splitStage !== "done" && (
             <button
               onClick={handleSplitClick}
@@ -93,16 +95,22 @@ export default function VoiceTrimmerTab() {
                   ? "0 0 0 2px hsl(185,65%,70%)"
                   : "0 1px 4px rgba(15,160,155,0.25)",
               }}
-              onMouseEnter={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "hsl(185,65%,28%)"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = splitStage === "preview" ? "hsl(185,65%,30%)" : "hsl(185,65%,36%)"; }}
+              onMouseEnter={(e) => {
+                if (!e.currentTarget.disabled) e.currentTarget.style.background = "hsl(185,65%,28%)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = splitStage === "preview"
+                  ? "hsl(185,65%,30%)"
+                  : "hsl(185,65%,36%)";
+              }}
             >
-              <Scissors className="w-3 h-3" />
-              {splitLabel}
+              <Scissors className="w-3 h-3" /> {splitLabel}
             </button>
           )}
         </div>
       </div>
 
+      {/* Audio Cards */}
       {audioFiles.length > 0 && (
         <div className="flex flex-col gap-2">
           {audioFiles.map((audio) => (
@@ -116,112 +124,8 @@ export default function VoiceTrimmerTab() {
         </div>
       )}
 
-      {/* Download Summary Card — appears only after trimming is done */}
-      {splitStage === "done" && audioFiles.some((f) => f.isTrimmed) && (
-        <div
-          className="rounded-xl overflow-hidden"
-          style={{
-            background: "white",
-            border: "1.5px solid hsl(185,65%,70%)",
-            boxShadow: "0 2px 8px rgba(15,160,155,0.10)",
-          }}
-        >
-          {/* Card Header */}
-          <div
-            className="flex items-center justify-between px-4 py-3"
-            style={{
-              background: "hsl(185,60%,97%)",
-              borderBottom: "1px solid hsl(185,65%,85%)",
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <div
-                className="p-1 rounded-md"
-                style={{ background: "hsl(185,65%,36%,0.12)" }}
-              >
-                <Download className="w-3.5 h-3.5" style={{ color: "hsl(185,65%,36%)" }} />
-              </div>
-              <div>
-                <p className="text-sm font-bold" style={{ color: "hsl(220,20%,14%)" }}>
-                  Download All Trimmed Files
-                </p>
-                <p className="text-[11px]" style={{ color: "hsl(220,10%,55%)" }}>
-                  {audioFiles.filter((f) => f.isTrimmed).length} files ready
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                audioFiles.filter((f) => f.isTrimmed && f.trimmedBlob).forEach((f, i) => {
-                  setTimeout(() => {
-                    const url = URL.createObjectURL(f.trimmedBlob!);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = f.name.replace(/\.[^.]+$/, "") + "_trimmed.wav";
-                    a.style.display = "none";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                  }, i * 200);
-                });
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
-              style={{ background: "hsl(185,65%,36%)", color: "white" }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "hsl(185,65%,28%)")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "hsl(185,65%,36%)")}
-            >
-              <Download className="w-3 h-3" />
-              Download All
-            </button>
-          </div>
-
-          {/* File list */}
-          <div className="px-3 py-2 flex flex-col gap-1 max-h-64 overflow-y-auto">
-            {audioFiles.filter((f) => f.isTrimmed).map((f, i) => (
-              <div
-                key={f.id}
-                className="flex items-center gap-3 px-2 py-1.5 rounded-lg"
-                style={{ background: i % 2 === 0 ? "hsl(220,20%,98%)" : "white" }}
-              >
-                <span
-                  className="text-[10px] font-mono font-bold shrink-0 w-6 text-center"
-                  style={{ color: "hsl(185,65%,40%)" }}
-                >
-                  {i + 1}
-                </span>
-                <span
-                  className="flex-1 text-xs truncate font-medium"
-                  style={{ color: "hsl(220,20%,22%)" }}
-                >
-                  {f.name.replace(/\.[^.]+$/, "")}_trimmed.wav
-                </span>
-                <button
-                  onClick={() => {
-                    if (!f.trimmedBlob) return;
-                    const url = URL.createObjectURL(f.trimmedBlob);
-                    const a = document.createElement("a");
-                    a.href = url;
-                    a.download = f.name.replace(/\.[^.]+$/, "") + "_trimmed.wav";
-                    a.style.display = "none";
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                  }}
-                  className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium shrink-0 transition-all"
-                  style={{ background: "hsl(185,65%,36%,0.10)", color: "hsl(185,65%,30%)" }}
-                  onMouseEnter={(e) => { e.currentTarget.style.background = "hsl(185,65%,36%)"; e.currentTarget.style.color = "white"; }}
-                  onMouseLeave={(e) => { e.currentTarget.style.background = "hsl(185,65%,36%,0.10)"; e.currentTarget.style.color = "hsl(185,65%,30%)"; }}
-                >
-                  <Download className="w-3 h-3" />
-                  Download
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Download Panel */}
+      {splitStage === "done" && <DownloadPanel files={audioFiles} />}
     </div>
   );
 }
