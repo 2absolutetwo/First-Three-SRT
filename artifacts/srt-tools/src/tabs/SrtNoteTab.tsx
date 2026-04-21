@@ -391,8 +391,9 @@ export default function SrtNoteTab() {
         {(() => {
           const langs = activeProject?.langs ?? [];
           const allSplit = langs.length > 0 && langs.every((_, i) => splitView[`${activeId}:${i}`]);
+          const chunkSizeFor = (langIdx: number) => (langs[langIdx]?.label === "Original" ? 40 : 20);
           const renderChunkCard = (chunk: string[], chunkIdx: number, langIdx: number) => {
-            const startLine = chunkIdx * 20 + 1;
+            const startLine = chunkIdx * chunkSizeFor(langIdx) + 1;
             const endLine = chunk.length > 0 ? startLine + chunk.length - 1 : startLine;
             const copyKey = `${activeId}:${langIdx}:${chunkIdx}`;
             const isCopied = !!copiedChunks[copyKey];
@@ -463,10 +464,11 @@ export default function SrtNoteTab() {
           };
 
           if (allSplit) {
-            const langChunks = langs.map((lang) => {
+            const langChunks = langs.map((lang, langIdx) => {
               const lines = lang.content === "" ? [] : lang.content.split("\n");
+              const size = chunkSizeFor(langIdx);
               const chunks: string[][] = [];
-              for (let i = 0; i < lines.length; i += 20) chunks.push(lines.slice(i, i + 20));
+              for (let i = 0; i < lines.length; i += size) chunks.push(lines.slice(i, i + size));
               if (chunks.length === 0) chunks.push([]);
               return chunks;
             });
@@ -520,8 +522,9 @@ export default function SrtNoteTab() {
                     <div className="flex-1 min-h-0 overflow-y-auto p-3 flex flex-col gap-3">
                       {(() => {
                         const lines = lang.content === "" ? [] : lang.content.split("\n");
+                        const size = chunkSizeFor(idx);
                         const chunks: string[][] = [];
-                        for (let i = 0; i < lines.length; i += 20) chunks.push(lines.slice(i, i + 20));
+                        for (let i = 0; i < lines.length; i += size) chunks.push(lines.slice(i, i + size));
                         if (chunks.length === 0) chunks.push([]);
                         return chunks.map((chunk, chunkIdx) => (
                           <div key={chunkIdx}>{renderChunkCard(chunk, chunkIdx, idx)}</div>
