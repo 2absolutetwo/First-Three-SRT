@@ -94,6 +94,9 @@ export default function App() {
   const [videoIncomingSrt, setVideoIncomingSrt] = useState("");
   const [videoIncomingSrtFilename, setVideoIncomingSrtFilename] = useState("");
   const [videoIncomingSrtKey, setVideoIncomingSrtKey] = useState(0);
+  const [noteIncomingText, setNoteIncomingText] = useState("");
+  const [noteIncomingName, setNoteIncomingName] = useState("");
+  const [noteIncomingKey, setNoteIncomingKey] = useState(0);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const saved = localStorage.getItem("srt-tools-theme");
@@ -211,7 +214,11 @@ export default function App() {
 
       {/* SRT Note — always mounted, full width, hidden when inactive */}
       <div style={{ display: activeTab === "note" ? "flex" : "none" }} className="flex-col flex-1 overflow-hidden">
-        <SrtNoteTab />
+        <SrtNoteTab
+          incomingText={noteIncomingText}
+          incomingName={noteIncomingName}
+          incomingKey={noteIncomingKey}
+        />
       </div>
 
       {/* SRT Time Spliter — full width, hidden when inactive */}
@@ -224,6 +231,12 @@ export default function App() {
             setVideoIncomingSrt(srt);
             setVideoIncomingSrtFilename(name);
             setVideoIncomingSrtKey((k) => k + 1);
+          }}
+          onSendToNote={(text, sourceName) => {
+            setNoteIncomingText(text);
+            setNoteIncomingName(sourceName);
+            setNoteIncomingKey((k) => k + 1);
+            handleSelectTab("note");
           }}
         />
       </div>

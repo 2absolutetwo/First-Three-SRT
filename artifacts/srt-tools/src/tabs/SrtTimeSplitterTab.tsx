@@ -10,6 +10,7 @@ interface Props {
   incomingFilename?: string;
   incomingKey?: number;
   onFinalOutput?: (srt: string, filename: string) => void;
+  onSendToNote?: (text: string, sourceName: string) => void;
 }
 
 const STORAGE_KEY = "srt-tools:splitter-state:v1";
@@ -36,7 +37,7 @@ function loadPersisted(): PersistedState | null {
   }
 }
 
-export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, incomingKey, onFinalOutput }: Props = {}) {
+export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, incomingKey, onFinalOutput, onSendToNote }: Props = {}) {
   const persisted = useRef<PersistedState | null>(loadPersisted()).current;
   const [input, setInput] = useState(persisted?.input ?? "");
   const lastIncomingKey = useRef<number | undefined>(undefined);
@@ -372,7 +373,18 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
                 <Button variant="ghost" onClick={handleClear} className="h-8 rounded-lg border border-slate-200 bg-white dark:bg-gray-900 px-3 text-xs font-semibold text-slate-500 shadow-sm hover:bg-slate-50 hover:text-slate-800">
                   <X className="h-3.5 w-3.5" /> Clear
                 </Button>
-                <Button variant="ghost" onClick={() => fileInputRef.current?.click()} className="h-8 rounded-lg border border-slate-200 bg-white dark:bg-gray-900 px-3 text-xs font-semibold text-slate-500 shadow-sm hover:bg-slate-50 hover:text-slate-800">
+                <Button variant="ghost" onClick={() => {
+                  const text = activeBlocks.map(b => b.text).join("\n").trim();
+                  if (!text) {
+                    toast({ title: "Nothing to send", description: "There is no text in the cards yet.", variant: "destructive" });
+                    return;
+                  }
+                  if (onSendToNote) {
+                    const baseName = (fileName || "output.srt").replace(/\.(srt|txt)$/i, "");
+                    onSendToNote(text, baseName || "Note");
+                    toast({ title: "Sent to SRT Note", description: "Opened a new project with text in ORIGINAL." });
+                  }
+                }} className="h-8 rounded-lg border border-slate-200 bg-white dark:bg-gray-900 px-3 text-xs font-semibold text-slate-500 shadow-sm hover:bg-slate-50 hover:text-slate-800">
                   <Upload className="h-3.5 w-3.5" /> Load Note
                 </Button>
                 <input ref={fileInputRef} type="file" accept=".srt,.txt" onChange={handleFileUpload} className="hidden" />

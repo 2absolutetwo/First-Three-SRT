@@ -154,7 +154,12 @@ function LineEditor({ editorKey, value, onChange, placeholder, divRef }: LineEdi
     />
   );
 }
-export default function SrtNoteTab() {
+interface SrtNoteTabProps {
+  incomingText?: string;
+  incomingName?: string;
+  incomingKey?: number;
+}
+export default function SrtNoteTab({ incomingText, incomingName, incomingKey }: SrtNoteTabProps = {}) {
   const initialStateRef = useRef<SavedState | null>(null);
   if (initialStateRef.current === null) initialStateRef.current = readSavedState();
   const initialState = initialStateRef.current;
@@ -192,6 +197,21 @@ export default function SrtNoteTab() {
     setProjects((prev) => [{ id: newId, name: `New Project ${prev.length + 1}`, updatedAt: "Just now", langs: DEFAULT_LANGS.map((l) => ({ ...l })) }, ...prev]);
     setActiveId(newId);
   }
+  const lastIncomingKeyRef = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (incomingKey === undefined) return;
+    if (incomingKey === lastIncomingKeyRef.current) return;
+    if (!incomingText || !incomingText.trim()) return;
+    lastIncomingKeyRef.current = incomingKey;
+    const newId = Date.now().toString();
+    setProjects((prev) => {
+      const baseName = (incomingName && incomingName.trim()) || `New Project ${prev.length + 1}`;
+      const langs = DEFAULT_LANGS.map((l) => ({ ...l }));
+      langs[0] = { ...langs[0], content: incomingText };
+      return [{ id: newId, name: baseName, updatedAt: "Just now", langs }, ...prev];
+    });
+    setActiveId(newId);
+  }, [incomingKey, incomingText, incomingName]);
   function updateContent(langIdx: number, value: string) {
     setProjects((prev) => prev.map((p) => {
       if (p.id !== activeId) return p;
