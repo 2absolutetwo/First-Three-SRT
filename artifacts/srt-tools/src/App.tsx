@@ -123,7 +123,7 @@ export default function App() {
 
       {/* SRT Maker — always mounted, hidden when inactive */}
       <div style={{ display: activeTab === "maker" ? "flex" : "none" }} className="flex-col flex-1 overflow-hidden">
-        <main className="px-4 py-5 flex-1 overflow-hidden">
+        <main className="max-w-5xl mx-auto w-full px-4 py-5 flex-1 overflow-hidden">
           <SrtMakerTab />
         </main>
       </div>
