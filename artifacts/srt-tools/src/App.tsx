@@ -7,8 +7,9 @@ import SrtNoteTab from "@/tabs/SrtNoteTab";
 import SrtTimeSplitterTab from "@/tabs/SrtTimeSplitterTab";
 import SrtMergerTab from "@/tabs/SrtMergerTab";
 import VoiceTrimmerTab from "@/tabs/VoiceTrimmerTab";
+import VideoSplitterTab from "@/tabs/VideoSplitterTab";
 
-type Tab = "editor" | "converter" | "maker" | "note" | "splitter" | "merger" | "audio";
+type Tab = "editor" | "converter" | "maker" | "note" | "splitter" | "merger" | "audio" | "video";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -71,6 +72,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "video",
+    label: "Video Spliter",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
       </svg>
     ),
   },
@@ -146,9 +156,14 @@ export default function App() {
         <VoiceTrimmerTab />
       </div>
 
+      {/* Video Spliter — full width, hidden when inactive */}
+      <div style={{ display: activeTab === "video" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
+        <VideoSplitterTab />
+      </div>
+
       {/* Other tabs */}
       <main
-        style={{ display: activeTab === "maker" || activeTab === "note" || activeTab === "splitter" || activeTab === "merger" || activeTab === "audio" ? "none" : "block" }}
+        style={{ display: activeTab === "maker" || activeTab === "note" || activeTab === "splitter" || activeTab === "merger" || activeTab === "audio" || activeTab === "video" ? "none" : "block" }}
         className="max-w-5xl mx-auto px-4 py-5 flex-1 overflow-y-auto w-full"
       >
         {activeTab === "editor" && (
