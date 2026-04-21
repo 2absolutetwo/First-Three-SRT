@@ -568,8 +568,8 @@ function Home() {
           </div>
         )}
 
-        {/* Job progress bar */}
-        {job && (
+        {/* Job progress bar — only while processing */}
+        {job && overallPct < 100 && (
           <div className="mt-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur-md p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2 text-xs text-slate-500">
               <span>Progress</span>
