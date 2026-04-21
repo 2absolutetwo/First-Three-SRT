@@ -68,9 +68,93 @@
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
 
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 220 15% 18%;
+  --sidebar-border: 220 16% 90%;
+  --sidebar-primary: 217 91% 60%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 220 18% 96%;
+  --sidebar-accent-foreground: 220 15% 18%;
+
   --app-font-sans: 'Inter', system-ui, sans-serif;
   --app-font-mono: 'Menlo', 'Monaco', monospace;
   --radius: 0.5rem;
+}
+
+.dark {
+  --background: 220 18% 10%;
+  --foreground: 220 10% 88%;
+  --border: 220 15% 22%;
+  --input: 220 15% 22%;
+  --ring: 217 91% 60%;
+  --card: 220 18% 14%;
+  --card-foreground: 220 10% 88%;
+  --popover: 220 18% 14%;
+  --popover-foreground: 220 10% 88%;
+  --primary: 217 91% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 15% 20%;
+  --secondary-foreground: 220 10% 80%;
+  --muted: 220 16% 18%;
+  --muted-foreground: 220 10% 55%;
+  --accent: 217 91% 60%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --sidebar: 220 20% 7%;
+  --sidebar-foreground: 220 10% 75%;
+  --sidebar-border: 220 18% 15%;
+  --sidebar-primary: 217 91% 60%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 220 18% 16%;
+  --sidebar-accent-foreground: 220 10% 88%;
+}
+
+@theme inline {
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+}
+
+[data-line-editor] { counter-reset: line-num; }
+[data-line-editor] > div {
+  counter-increment: line-num;
+  padding-left: 2.6rem;
+  position: relative;
+  min-height: 1.6em;
+  line-height: 1.65;
+  word-break: break-word;
+  margin-bottom: 0.15rem;
+}
+[data-line-editor] > div::before {
+  content: counter(line-num) ".";
+  position: absolute;
+  left: 0;
+  font-weight: 700;
+  user-select: none;
+  pointer-events: none;
+  color: inherit;
+  min-width: 2.2rem;
+}
+[data-line-editor] > div:nth-child(20n) {
+  color: #dc2626;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
+[data-line-editor] > div:nth-child(20n)::before {
+  color: #dc2626;
+  font-weight: 700;
+}
+[data-line-editor]:empty::before,
+[data-line-editor][data-empty="true"]::before {
+  content: attr(data-placeholder);
+  color: hsl(var(--muted-foreground));
+  pointer-events: none;
 }
 
 @layer base {
