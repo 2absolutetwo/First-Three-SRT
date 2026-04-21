@@ -9,6 +9,7 @@ interface SrtMergerTabProps {
   setSubtitles?: (subs: Subtitle[]) => void;
   setFilename?: (name: string) => void;
   onGenerated?: () => void;
+  onTransform?: () => void;
 }
 
 interface SRTEntry {
@@ -145,7 +146,7 @@ function generateSRT(entries: SRTEntry[], sentences: string[]): string {
   return lines.join("\n");
 }
 
-export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }: SrtMergerTabProps = {}) {
+export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated, onTransform }: SrtMergerTabProps = {}) {
   const [srtEntries, setSrtEntries] = useState<SRTEntry[]>([]);
   const [sentenceText, setSentenceText] = useState("");
   const [addMoreText, setAddMoreText] = useState("");
@@ -287,6 +288,28 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
   const gapCount = srtEntries.length > 1 && !overlapsExist ? countGaps(srtEntries) : 0;
   const gapsExist = gapCount > 0;
 
+  const runGenerate = () => {
+    if (outputEntries.length === 0) {
+      toast({ title: "Not ready", description: "Upload SRT and add sentences first", variant: "destructive" });
+      return;
+    }
+    setIsGenerated(true);
+    const content = generateSRT(srtEntries, sentences);
+    const parsed = parseSrt(content);
+    setSubtitles?.(parsed);
+    setFilename?.(fileName || "merged.srt");
+    onGenerated?.();
+    toast({ title: "SRT Generated!", description: `${outputEntries.length} subtitles merged → sent to SRT Editor` });
+  };
+
+  const runGenerateRef = useRef(runGenerate);
+  runGenerateRef.current = runGenerate;
+  useEffect(() => {
+    const h = () => runGenerateRef.current();
+    window.addEventListener("srt-tools:merger-generate", h);
+    return () => window.removeEventListener("srt-tools:merger-generate", h);
+  }, []);
+
   const handleDownload = () => {
     if (outputEntries.length === 0) {
       toast({ title: "Nothing to download", description: "Generate output first", variant: "destructive" });
@@ -335,7 +358,11 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
         <div className="flex gap-2">
           <Button
             onClick={() => {
-              toast({ title: "Transform", description: "Transform action not configured yet" });
+              if (onTransform) {
+                onTransform();
+              } else {
+                toast({ title: "Transform", description: "Transform action not configured" });
+              }
             }}
             className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-7 px-2.5 gap-1 rounded-md shadow-sm"
           >
@@ -343,19 +370,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
             Transform
           </Button>
           <Button
-            onClick={() => {
-              if (outputEntries.length === 0) {
-                toast({ title: "Not ready", description: "Upload SRT and add sentences first", variant: "destructive" });
-              } else {
-                setIsGenerated(true);
-                const content = generateSRT(srtEntries, sentences);
-                const parsed = parseSrt(content);
-                setSubtitles?.(parsed);
-                setFilename?.(fileName || "merged.srt");
-                onGenerated?.();
-                toast({ title: "SRT Generated!", description: `${outputEntries.length} subtitles merged → sent to SRT Editor` });
-              }
-            }}
+            onClick={runGenerate}
             className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-7 px-2.5 gap-1 rounded-md shadow-sm"
           >
             <Sparkles className="w-3 h-3" />

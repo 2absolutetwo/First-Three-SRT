@@ -212,6 +212,26 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
     setDotDone(true);
   };
 
+  const splitRef = useRef(handleSplitLine);
+  const dotRef = useRef(handleEmojiToDot);
+  const trimRef = useRef(handleTrimEnd10);
+  splitRef.current = handleSplitLine;
+  dotRef.current = handleEmojiToDot;
+  trimRef.current = handleTrimEnd10;
+  useEffect(() => {
+    const hSplit = () => splitRef.current();
+    const hDot = () => dotRef.current();
+    const hTrim = () => trimRef.current();
+    window.addEventListener("srt-tools:splitter-split", hSplit);
+    window.addEventListener("srt-tools:splitter-dot", hDot);
+    window.addEventListener("srt-tools:splitter-trim10", hTrim);
+    return () => {
+      window.removeEventListener("srt-tools:splitter-split", hSplit);
+      window.removeEventListener("srt-tools:splitter-dot", hDot);
+      window.removeEventListener("srt-tools:splitter-trim10", hTrim);
+    };
+  }, []);
+
   const handleClear = () => {
     setInput("");
     setFileName("");

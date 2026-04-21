@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { type Subtitle, parseSrt, downloadSrt } from "@/lib/srt";
 
 const CHECK_MARK = "✅";
@@ -201,6 +201,14 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
     setConvertStats({ marks, ellipsis: removed });
     setConverted(true);
   }
+
+  const convertRef = useRef(handleConvert);
+  convertRef.current = handleConvert;
+  useEffect(() => {
+    const h = () => convertRef.current();
+    window.addEventListener("srt-tools:editor-convert", h);
+    return () => window.removeEventListener("srt-tools:editor-convert", h);
+  }, []);
 
   const punctCount = subtitles.reduce(
     (acc, s) => acc + (s.text.match(/[.?!।]/g) || []).length, 0

@@ -124,6 +124,29 @@ export default function App() {
     setActiveTab(id);
   };
 
+  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+  const runTransformSequence = async () => {
+    await sleep(1000);
+    window.dispatchEvent(new CustomEvent("srt-tools:merger-generate"));
+    await sleep(1000);
+    handleSelectTab("editor");
+    await sleep(200);
+    window.dispatchEvent(new CustomEvent("srt-tools:editor-convert"));
+    await sleep(800);
+    handleSelectTab("converter");
+    await sleep(200);
+    window.dispatchEvent(new CustomEvent("srt-tools:converter-convert"));
+    await sleep(800);
+    handleSelectTab("splitter");
+    await sleep(1000);
+    window.dispatchEvent(new CustomEvent("srt-tools:splitter-split"));
+    await sleep(500);
+    window.dispatchEvent(new CustomEvent("srt-tools:splitter-dot"));
+    await sleep(500);
+    window.dispatchEvent(new CustomEvent("srt-tools:splitter-trim10"));
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-100 dark:bg-gray-900 overflow-hidden">
       <header className="bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-20 shrink-0">
@@ -208,6 +231,7 @@ export default function App() {
           setSubtitles={setSubtitles}
           setFilename={setFilename}
           onGenerated={() => {}}
+          onTransform={runTransformSequence}
         />
       </div>
 

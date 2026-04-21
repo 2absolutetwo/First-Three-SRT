@@ -90,6 +90,14 @@ export default function SrtConverterTab({ sharedSubtitles, sharedFilename }: Pro
     setConverted(true);
   }
 
+  const convertRef = useRef(handleConvert);
+  convertRef.current = handleConvert;
+  useEffect(() => {
+    const h = () => convertRef.current();
+    window.addEventListener("srt-tools:converter-convert", h);
+    return () => window.removeEventListener("srt-tools:converter-convert", h);
+  }, []);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 flex flex-wrap items-center gap-2">
