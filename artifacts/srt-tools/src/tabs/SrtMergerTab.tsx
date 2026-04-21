@@ -656,6 +656,26 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 </div>
               </div>
               <div className="flex items-center gap-3">
+                {notepadText && (() => {
+                  const parsed = parseSRT(notepadText);
+                  if (parsed.length > 0) {
+                    return (
+                      <button
+                        onClick={() => {
+                          const converted = parsed
+                            .map((e, i) => `(${i + 1}) ${e.text}`)
+                            .join("\n");
+                          setNotepadText(converted);
+                          toast({ title: "Converted", description: `${parsed.length} SRT entries → sentences` });
+                        }}
+                        className="text-xs text-emerald-600 hover:text-emerald-700 font-medium border border-emerald-200 hover:border-emerald-400 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded transition-colors"
+                      >
+                        Convert SRT → Sentences
+                      </button>
+                    );
+                  }
+                  return null;
+                })()}
                 {notepadText && (
                   <button
                     onClick={() => setNotepadText("")}
