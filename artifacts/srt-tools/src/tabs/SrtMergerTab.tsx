@@ -485,30 +485,14 @@ export default function SrtMergerTab() {
               </div>
             ) : (
               <div className="space-y-2">
-                {sentences.map((sentence, i) => (
-                  <div
-                    key={i}
-                    className={`flex gap-2 p-2.5 rounded-lg border transition-colors ${
-                      i < srtEntries.length
-                        ? "border-emerald-100 bg-emerald-50/40"
-                        : "border-orange-100 bg-orange-50/40"
-                    }`}
-                  >
-                    <span className="text-xs font-semibold text-gray-400 mt-0.5 w-5 flex-shrink-0 text-right">
-                      {i + 1}.
-                    </span>
-                    <p className="text-sm text-gray-700 leading-relaxed">{sentence}</p>
-                  </div>
-                ))}
-
-                {/* Add more sentences */}
-                <div className="mt-2 pt-3 border-t border-dashed border-gray-200">
+                {/* Add more sentences — top */}
+                <div className="pb-3 mb-2 border-b border-dashed border-gray-200">
                   <p className="text-xs text-gray-400 mb-1.5 font-medium">+ Add more sentences (from {sentences.length + 1})</p>
                   <Textarea
                     value={addMoreText}
                     onChange={(e) => setAddMoreText(e.target.value)}
                     placeholder={"Paste next batch here...\nOne sentence per line"}
-                    className="min-h-[180px] text-sm resize-none border-gray-200 focus:border-emerald-400 focus:ring-emerald-400"
+                    className="min-h-[120px] text-sm resize-none border-gray-200 focus:border-emerald-400 focus:ring-emerald-400"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && e.ctrlKey) {
                         e.preventDefault();
@@ -524,6 +508,22 @@ export default function SrtMergerTab() {
                     Add to list (Ctrl+Enter)
                   </button>
                 </div>
+
+                {sentences.map((sentence, i) => (
+                  <div
+                    key={i}
+                    className={`flex gap-2 p-2.5 rounded-lg border transition-colors ${
+                      i < srtEntries.length
+                        ? "border-emerald-100 bg-emerald-50/40"
+                        : "border-orange-100 bg-orange-50/40"
+                    }`}
+                  >
+                    <span className="text-xs font-semibold text-gray-400 mt-0.5 w-5 flex-shrink-0 text-right">
+                      {i + 1}.
+                    </span>
+                    <p className="text-sm text-gray-700 leading-relaxed">{sentence}</p>
+                  </div>
+                ))}
               </div>
             )}
           </div>
