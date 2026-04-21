@@ -570,7 +570,7 @@ export default function SrtNoteTab() {
                       onChange={(e) => updateTaskValue(idx, col, e.target.value)}
                       placeholder={activeProject?.langs[col]?.label ?? ""}
                       rows={3}
-                      className={`flex-1 min-w-0 px-3 py-2 text-sm rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-emerald-900/30 text-foreground outline-none focus:border-emerald-500 resize-y min-h-[72px] leading-relaxed ${task.checked ? "line-through opacity-60" : ""}`} />
+                      className={`flex-1 min-w-0 px-3 py-2 text-sm rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-900 dark:bg-emerald-900/30 text-foreground outline-none focus:border-emerald-500 resize-y min-h-[72px] leading-relaxed ${task.checked ? "line-through opacity-60" : ""}`} />
                   ))}
                   <button onClick={() => removeTaskRow(idx)} title="Remove row"
                     className="shrink-0 mt-2 w-7 h-7 flex items-center justify-center rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors">
@@ -579,7 +579,7 @@ export default function SrtNoteTab() {
                 </div>
               ))}
               <button onClick={addTaskRow} title="Add row"
-                className="mt-3 mx-auto w-1/2 flex items-center justify-center py-3 rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors">
+                className="mt-3 mx-auto w-1/2 flex items-center justify-center py-3 rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-gray-900 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition-colors">
                 <Plus size={18} />
               </button>
             </div>

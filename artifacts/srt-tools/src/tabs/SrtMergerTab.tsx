@@ -254,7 +254,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
     <div className="h-screen flex flex-col bg-[#f5f7fa] font-sans overflow-hidden">
       {/* Header — top card */}
       <div className="w-full mx-auto px-6 pt-4 flex-shrink-0">
-      <div className="bg-white border border-gray-200 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
           <button
             onClick={() => {
@@ -271,7 +271,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
           >
             <FileText className="w-5 h-5 text-emerald-500" />
           </button>
-          <span className="font-semibold text-gray-800 text-sm">SRT Merger</span>
+          <span className="font-semibold text-gray-800 dark:text-gray-100 text-sm">SRT Merger</span>
           {matchCount > 0 && (
             <span className="ml-2 bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs px-2 py-0.5 rounded-full font-medium">
               ✓ {matchCount} lines matched
@@ -313,13 +313,13 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
       {/* Three Cards */}
       <div className="w-full mx-auto px-6 py-4 grid grid-cols-3 gap-4 flex-1 min-h-0">
         {/* Card 1 — SRT Upload */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">1</span>
               <div>
-                <div className="font-semibold text-gray-800 text-sm">SRT Input</div>
-                <div className="text-xs text-gray-400">Upload your SRT file</div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">SRT Input</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500">Upload your SRT file</div>
               </div>
             </div>
             {srtEntries.length > 0 && (
@@ -340,11 +340,11 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                       () => toast({ title: "Copy failed", description: "Could not copy to clipboard", variant: "destructive" })
                     );
                   }}
-                  className="text-xs text-gray-400 hover:text-blue-600 transition-colors"
+                  className="text-xs text-gray-400 dark:text-gray-500 hover:text-blue-600 transition-colors"
                 >
                   Copy all
                 </button>
-                <button onClick={clearSRT} className="text-xs text-gray-400 hover:text-red-500 transition-colors">
+                <button onClick={clearSRT} className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors">
                   Clear all
                 </button>
               </div>
@@ -368,9 +368,9 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
                   <Upload className="w-5 h-5 text-emerald-500" />
                 </div>
-                <p className="text-sm font-medium text-gray-600">Drop SRT file here</p>
-                <p className="text-xs text-gray-400 mt-1">or click to browse</p>
-                <p className="text-xs text-gray-300 mt-1">.srt files only</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Drop SRT file here</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">or click to browse</p>
+                <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">.srt files only</p>
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -418,22 +418,22 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                         <button
                           onClick={() => moveEntry(i, -1)}
                           disabled={i === 0}
-                          className="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                          className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors"
                         >
-                          <ChevronUp className="w-3 h-3 text-gray-500" />
+                          <ChevronUp className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </button>
                         <button
                           onClick={() => moveEntry(i, 1)}
                           disabled={i === srtEntries.length - 1}
-                          className="p-0.5 rounded hover:bg-gray-200 disabled:opacity-30 transition-colors"
+                          className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors"
                         >
-                          <ChevronDown className="w-3 h-3 text-gray-500" />
+                          <ChevronDown className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </button>
                         <button
                           onClick={() => addEntryAfter(i)}
-                          className="p-0.5 rounded hover:bg-gray-200 transition-colors"
+                          className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         >
-                          <Plus className="w-3 h-3 text-gray-500" />
+                          <Plus className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </button>
                         <button
                           onClick={() => deleteEntry(i)}
@@ -444,7 +444,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                       </div>
                     </div>
                     {entry.text && (
-                      <p className="text-xs text-gray-600 mt-2 ml-7 leading-relaxed line-clamp-2">{entry.text}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 ml-7 leading-relaxed line-clamp-2">{entry.text}</p>
                     )}
                   </div>
                   );
@@ -453,7 +453,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 {/* Add more button */}
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full text-xs text-gray-400 hover:text-emerald-500 py-2 transition-colors"
+                  className="w-full text-xs text-gray-400 dark:text-gray-500 hover:text-emerald-500 py-2 transition-colors"
                 >
                   + Upload different file
                 </button>
@@ -470,13 +470,13 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
         </div>
 
         {/* Card 2 — Sentence Input */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">2</span>
               <div>
-                <div className="font-semibold text-gray-800 text-sm">Sentence Input</div>
-                <div className="text-xs text-gray-400">One sentence per line</div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Sentence Input</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500">One sentence per line</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -497,7 +497,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
               {sentenceText && (
                 <button
                   onClick={() => { setSentenceText(""); setSentenceHistory([]); }}
-                  className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                  className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                 >
                   Clear all
                 </button>
@@ -509,8 +509,8 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
             {sentences.length === 0 ? (
               <div className="relative h-full min-h-[300px]">
                 {!sentenceText && (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-2 text-gray-400">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-2 text-gray-400 dark:text-gray-500">
+                    <div className="w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
                       <FileText className="w-4 h-4" />
                     </div>
                     <p className="text-sm">Type or paste your sentences below</p>
@@ -521,19 +521,19 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                   value={sentenceText}
                   onChange={(e) => setSentenceText(e.target.value)}
                   placeholder=""
-                  className="absolute inset-0 w-full h-full text-sm resize-none border-gray-200 focus:border-emerald-400 focus:ring-emerald-400 bg-transparent"
+                  className="absolute inset-0 w-full h-full text-sm resize-none border-gray-200 dark:border-gray-700 focus:border-emerald-400 focus:ring-emerald-400 bg-transparent"
                 />
               </div>
             ) : (
               <div className="space-y-2">
                 {/* Add more sentences — top */}
-                <div className="pb-3 mb-2 border-b border-dashed border-gray-200">
-                  <p className="text-xs text-gray-400 mb-1.5 font-medium">+ Add more sentences (from {sentences.length + 1})</p>
+                <div className="pb-3 mb-2 border-b border-dashed border-gray-200 dark:border-gray-700">
+                  <p className="text-xs text-gray-400 dark:text-gray-500 mb-1.5 font-medium">+ Add more sentences (from {sentences.length + 1})</p>
                   <Textarea
                     value={addMoreText}
                     onChange={(e) => setAddMoreText(e.target.value)}
                     placeholder={"Paste next batch here...\nOne sentence per line"}
-                    className="min-h-[120px] text-sm resize-none border-gray-200 focus:border-emerald-400 focus:ring-emerald-400"
+                    className="min-h-[120px] text-sm resize-none border-gray-200 dark:border-gray-700 focus:border-emerald-400 focus:ring-emerald-400"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && e.ctrlKey) {
                         e.preventDefault();
@@ -559,10 +559,10 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                         : "border-orange-100 bg-orange-50/40"
                     }`}
                   >
-                    <span className="text-xs font-semibold text-gray-400 mt-0.5 w-5 flex-shrink-0 text-right">
+                    <span className="text-xs font-semibold text-gray-400 dark:text-gray-500 mt-0.5 w-5 flex-shrink-0 text-right">
                       {i + 1}.
                     </span>
-                    <p className="text-sm text-gray-700 leading-relaxed">{sentence}</p>
+                    <p className="text-sm text-gray-700 dark:text-gray-200 leading-relaxed">{sentence}</p>
                   </div>
                 ))}
               </div>
@@ -571,13 +571,13 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
         </div>
 
         {/* Card 3 — Output SRT */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">3</span>
               <div>
-                <div className="font-semibold text-gray-800 text-sm">Output SRT</div>
-                <div className="text-xs text-gray-400">Preview & download</div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Output SRT</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500">Preview & download</div>
               </div>
             </div>
             {isGenerated && outputEntries.length > 0 && (
@@ -589,8 +589,8 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
 
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {!isGenerated ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-3 py-12">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-3 py-12">
+                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div className="text-center">
@@ -610,16 +610,16 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
             ) : (
               <>
                 {outputEntries.map((entry, i) => (
-                  <div key={i} className="border border-gray-100 rounded-lg p-3 hover:border-emerald-200 hover:bg-emerald-50/20 transition-colors">
+                  <div key={i} className="border border-gray-100 dark:border-gray-800 rounded-lg p-3 hover:border-emerald-200 hover:bg-emerald-50/20 transition-colors">
                     <div className="flex items-center gap-2 mb-1.5">
                       <span className="w-5 h-5 bg-emerald-500 text-white rounded text-xs flex items-center justify-center font-bold flex-shrink-0">
                         {i + 1}
                       </span>
-                      <span className="text-xs text-gray-500 font-mono tabular-nums">
+                      <span className="text-xs text-gray-500 dark:text-gray-400 font-mono tabular-nums">
                         {entry.startTime} → {entry.endTime}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-800 ml-7 leading-relaxed">{entry.newText}</p>
+                    <p className="text-sm text-gray-800 dark:text-gray-100 ml-7 leading-relaxed">{entry.newText}</p>
                   </div>
                 ))}
                 {/* Mismatch warning */}
@@ -647,7 +647,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-xl border border-gray-200 shadow-2xl flex flex-col overflow-hidden"
+            className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 shadow-2xl flex flex-col overflow-hidden"
             style={{
               width: "calc((100vw - 56px) / 3)",
               height: "calc(100vh - 96px)",
@@ -655,12 +655,12 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
               marginLeft: "24px",
             }}
           >
-            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+            <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2">
                 <FileText className="w-5 h-5 text-emerald-500" />
                 <div>
-                  <div className="font-semibold text-gray-800 text-sm">Notepad</div>
-                  <div className="text-xs text-gray-400">Quick notes — auto-saved</div>
+                  <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Notepad</div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">Quick notes — auto-saved</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -687,17 +687,17 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                 {notepadText && (
                   <button
                     onClick={() => setNotepadText("")}
-                    className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                    className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                   >
                     Clear
                   </button>
                 )}
                 <button
                   onClick={() => setShowNotepad(false)}
-                  className="p-1 rounded hover:bg-gray-100 transition-colors"
+                  className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   title="Close"
                 >
-                  <X className="w-4 h-4 text-gray-500" />
+                  <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
                 </button>
               </div>
             </div>
@@ -725,7 +725,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                   toast({ title: "Converted", description: `${parsed.length} SRT entries → sentences` });
                 }}
                 placeholder="Paste SRT here — it will auto-convert to numbered sentences. Or write any quick notes."
-                className="w-full h-full text-sm resize-none border-gray-200 focus:border-emerald-400 focus:ring-emerald-400"
+                className="w-full h-full text-sm resize-none border-gray-200 dark:border-gray-700 focus:border-emerald-400 focus:ring-emerald-400"
               />
             </div>
           </div>

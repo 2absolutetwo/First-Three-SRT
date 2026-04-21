@@ -208,9 +208,9 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
 
   return (
     <div className="flex flex-col gap-0">
-      <div className="bg-white border border-gray-200 rounded-xl px-4 py-3 flex flex-wrap items-center gap-2 mb-3">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 flex flex-wrap items-center gap-2 mb-3">
         {subtitles.length > 0 && (
-          <span className="text-xs bg-gray-100 text-gray-600 px-2.5 py-1 rounded-full font-medium">
+          <span className="text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 px-2.5 py-1 rounded-full font-medium">
             {subtitles.length} subtitles{converted ? " • converted" : ""}
           </span>
         )}
@@ -295,31 +295,31 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
                 : "border-gray-300 bg-gray-50 hover:border-blue-400 hover:bg-blue-50/40"
             }`}
           >
-            <div className="w-14 h-14 rounded-full bg-white shadow-sm border border-gray-200 flex items-center justify-center mb-4">
-              <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-14 h-14 rounded-full bg-white dark:bg-gray-900 shadow-sm border border-gray-200 dark:border-gray-700 flex items-center justify-center mb-4">
+              <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
               </svg>
             </div>
-            <p className="text-base font-bold text-gray-700 mb-1">Drop your SRT file here</p>
-            <p className="text-sm text-gray-400">or click to browse — supports .srt and .txt files</p>
+            <p className="text-base font-bold text-gray-700 dark:text-gray-200 mb-1">Drop your SRT file here</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">or click to browse — supports .srt and .txt files</p>
           </div>
 
           <div className="flex items-center gap-3 my-4 px-2">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-sm text-gray-400 font-medium">or</span>
-            <div className="flex-1 h-px bg-gray-200" />
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
+            <span className="text-sm text-gray-400 dark:text-gray-500 font-medium">or</span>
+            <div className="flex-1 h-px bg-gray-200 dark:bg-gray-700" />
           </div>
 
           <div className="flex items-center justify-center gap-3">
             <button onClick={() => setPasteOpen(true)}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
               </svg>
               Paste SRT text
             </button>
             <button onClick={loadSample}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 shadow-sm transition-colors">
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm transition-colors">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
@@ -330,11 +330,11 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
       )}
 
       {filename && (
-        <div className="bg-white border border-gray-200 rounded-xl px-4 py-2.5 flex items-center gap-3 flex-wrap mb-3 shadow-sm">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-2.5 flex items-center gap-3 flex-wrap mb-3 shadow-sm">
           <svg className="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          <span className="text-sm font-semibold text-gray-700">{filename}</span>
+          <span className="text-sm font-semibold text-gray-700 dark:text-gray-200">{filename}</span>
           {converted && (
             <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
               {CHECK_MARK} Converted
@@ -342,14 +342,14 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
           )}
           <div className="flex-1" />
           <button onClick={handleClear}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 hover:text-red-500 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-red-500 transition-colors">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
             Clear
           </button>
           <button onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 transition-colors">
+            className="flex items-center gap-1 px-2.5 py-1 rounded-lg border border-gray-200 dark:border-gray-700 text-xs text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
             </svg>
@@ -364,13 +364,13 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
             const hasOverlap = overlapSet.has(idx);
             return (
               <div key={sub.id}
-                className={`bg-white rounded-2xl border shadow-sm transition-all ${
+                className={`bg-white dark:bg-gray-900 rounded-2xl border shadow-sm transition-all ${
                   hasOverlap
                     ? "border-orange-400 shadow-orange-100"
                     : sub.edited ? "border-emerald-300 shadow-emerald-100" : "border-gray-200"
                 }`}>
-                <div className="flex items-center gap-2.5 px-4 pt-3 pb-2 border-b border-gray-100">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 text-xs font-bold text-gray-500 shrink-0">
+                <div className="flex items-center gap-2.5 px-4 pt-3 pb-2 border-b border-gray-100 dark:border-gray-800">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-gray-100 dark:bg-gray-800 text-xs font-bold text-gray-500 dark:text-gray-400 shrink-0">
                     {sub.index}
                   </span>
                   <div className={`flex items-center gap-1.5 text-xs font-mono ${hasOverlap ? "text-orange-500 font-semibold" : "text-gray-400"}`}>
@@ -394,25 +394,25 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
                   <div className="flex-1" />
                   <div className="flex items-center gap-0.5">
                     <button onClick={() => moveUp(idx)} disabled={idx === 0} title="Move up"
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
                       </svg>
                     </button>
                     <button onClick={() => moveDown(idx)} disabled={idx === subtitles.length - 1} title="Move down"
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-20 disabled:cursor-not-allowed transition-colors">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
                     <button onClick={() => addAfter(idx)} title="Add after"
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-emerald-600 hover:bg-emerald-50 transition-colors">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                       </svg>
                     </button>
                     <button onClick={() => remove(idx)} title="Delete"
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors">
+                      className="p-1.5 rounded-lg text-gray-400 dark:text-gray-500 hover:text-red-500 hover:bg-red-50 transition-colors">
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -427,7 +427,7 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
                     rows={1}
                     spellCheck={false}
                     placeholder="Enter subtitle text..."
-                    className="w-full resize-none overflow-hidden text-gray-800 text-sm leading-relaxed bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-300"
+                    className="w-full resize-none overflow-hidden text-gray-800 dark:text-gray-100 text-sm leading-relaxed bg-transparent border-none outline-none focus:ring-0 p-0 placeholder-gray-300"
                     style={{ minHeight: "1.5rem" }}
                   />
                 </div>
@@ -439,10 +439,10 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
 
       {pasteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-              <h2 className="text-base font-semibold text-gray-800">Paste SRT Content</h2>
-              <button onClick={() => { setPasteOpen(false); setPasteText(""); }} className="text-gray-400 hover:text-gray-600">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <h2 className="text-base font-semibold text-gray-800 dark:text-gray-100">Paste SRT Content</h2>
+              <button onClick={() => { setPasteOpen(false); setPasteText(""); }} className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -452,12 +452,12 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
               <textarea
                 autoFocus value={pasteText} onChange={(e) => setPasteText(e.target.value)}
                 placeholder={"1\n00:00:00,000 --> 00:00:05,000\nHello World\n\n2\n..."}
-                className="w-full h-72 p-3 text-sm font-mono border border-gray-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-700 placeholder-gray-300"
+                className="w-full h-72 p-3 text-sm font-mono border border-gray-200 dark:border-gray-700 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 text-gray-700 dark:text-gray-200 placeholder-gray-300"
               />
             </div>
             <div className="px-6 pb-5 flex gap-2 justify-end">
               <button onClick={() => { setPasteOpen(false); setPasteText(""); }}
-                className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50">Cancel</button>
+                className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">Cancel</button>
               <button onClick={handlePaste} disabled={!pasteText.trim()}
                 className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 disabled:opacity-40">Load SRT</button>
             </div>

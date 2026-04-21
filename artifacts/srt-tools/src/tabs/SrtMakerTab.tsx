@@ -154,10 +154,10 @@ export default function SrtMakerTab() {
     <div className="h-screen flex flex-col bg-[#f5f7fa] font-sans overflow-hidden">
       {/* Header — top card */}
       <div className="w-full mx-auto px-6 pt-4 flex-shrink-0">
-        <div className="bg-white border border-gray-200 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-2">
             <Music className="w-5 h-5 text-emerald-500" />
-            <span className="font-semibold text-gray-800 text-sm">SRT Maker</span>
+            <span className="font-semibold text-gray-800 dark:text-gray-100 text-sm">SRT Maker</span>
             {matchCount > 0 && !mismatch && (
               <span className="ml-2 bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs px-2 py-0.5 rounded-full font-medium">
                 ✓ {matchCount} files matched
@@ -193,19 +193,19 @@ export default function SrtMakerTab() {
       {/* Three Cards */}
       <div className="w-full mx-auto px-6 py-4 grid grid-cols-3 gap-4 flex-1 min-h-0">
         {/* Card 1 — Voice Input */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">1</span>
               <div>
-                <div className="font-semibold text-gray-800 text-sm">Voice Input</div>
-                <div className="text-xs text-gray-400">MP3 / Audio files</div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Voice Input</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500">MP3 / Audio files</div>
               </div>
             </div>
             {audioEntries.length > 0 && (
               <button
                 onClick={() => { setAudioEntries([]); setGenerated(false); }}
-                className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
               >
                 Clear all
               </button>
@@ -225,7 +225,7 @@ export default function SrtMakerTab() {
                 }`}
               >
                 {loadingFiles ? (
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-500 py-4">
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-500 dark:text-gray-400 py-4">
                     <svg className="w-4 h-4 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
@@ -237,9 +237,9 @@ export default function SrtMakerTab() {
                     <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-3">
                       <Upload className="w-5 h-5 text-emerald-500" />
                     </div>
-                    <p className="text-sm font-medium text-gray-600">Drop audio files here</p>
-                    <p className="text-xs text-gray-400 mt-1">or click to browse</p>
-                    <p className="text-xs text-gray-300 mt-1">MP3, WAV, M4A, OGG</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Drop audio files here</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">or click to browse</p>
+                    <p className="text-xs text-gray-300 dark:text-gray-600 mt-1">MP3, WAV, M4A, OGG</p>
                   </>
                 )}
               </div>
@@ -252,13 +252,13 @@ export default function SrtMakerTab() {
                 </div>
 
                 {audioEntries.map((entry, i) => (
-                  <div key={entry.id} className="border border-gray-100 bg-gray-50/50 hover:bg-white rounded-lg p-3 transition-colors">
+                  <div key={entry.id} className="border border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 hover:bg-white dark:hover:bg-gray-900 rounded-lg p-3 transition-colors">
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex items-center gap-2 flex-1 min-w-0">
                         <span className="w-5 h-5 bg-blue-100 text-blue-600 rounded text-xs flex items-center justify-center font-bold flex-shrink-0">
                           {i + 1}
                         </span>
-                        <span className="text-xs font-mono tabular-nums truncate text-gray-500">
+                        <span className="text-xs font-mono tabular-nums truncate text-gray-500 dark:text-gray-400">
                           {msToDisplay(entry.startMs)} → {msToDisplay(entry.endMs)}
                         </span>
                       </div>
@@ -269,13 +269,13 @@ export default function SrtMakerTab() {
                         <X className="w-3 h-3 text-red-400" />
                       </button>
                     </div>
-                    <p className="text-xs text-gray-600 mt-2 ml-7 leading-relaxed truncate">{entry.name}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 ml-7 leading-relaxed truncate">{entry.name}</p>
                   </div>
                 ))}
 
                 <button
                   onClick={() => audioInputRef.current?.click()}
-                  className="w-full text-xs text-gray-400 hover:text-emerald-500 py-2 transition-colors"
+                  className="w-full text-xs text-gray-400 dark:text-gray-500 hover:text-emerald-500 py-2 transition-colors"
                 >
                   + Add more audio files
                 </button>
@@ -285,13 +285,13 @@ export default function SrtMakerTab() {
         </div>
 
         {/* Card 2 — Sentence Input */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">2</span>
               <div>
-                <div className="font-semibold text-gray-800 text-sm">Sentence Input</div>
-                <div className="text-xs text-gray-400">One sentence per line</div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Sentence Input</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500">One sentence per line</div>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -299,15 +299,15 @@ export default function SrtMakerTab() {
                 <button
                   onClick={() => setLangOpen((o) => !o)}
                   title="Select language direction"
-                  className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-gray-200 bg-white text-xs font-bold text-blue-500 hover:border-blue-300 transition-all"
+                  className="flex items-center gap-1 px-2 py-0.5 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs font-bold text-blue-500 hover:border-blue-300 transition-all"
                 >
                   {lang.toUpperCase()}
-                  <svg className="w-2.5 h-2.5 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-2.5 h-2.5 text-gray-400 dark:text-gray-500" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M7 10l5 5 5-5z" />
                   </svg>
                 </button>
                 {langOpen && (
-                  <div className="absolute top-full right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden min-w-[120px]">
+                  <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-50 overflow-hidden min-w-[120px]">
                     {([
                       { code: "en", label: "EN", desc: "English" },
                       { code: "ar", label: "AR", desc: "Arabic (RTL)" },
@@ -316,7 +316,7 @@ export default function SrtMakerTab() {
                       <button key={code} onClick={() => { setLang(code); setLangOpen(false); }}
                         className={`w-full flex items-center gap-2 px-3 py-1.5 text-xs font-semibold transition-colors hover:bg-blue-50 ${lang === code ? "bg-blue-50 text-blue-600" : "text-gray-600"}`}>
                         <span className="font-bold">{label}</span>
-                        <span className="text-gray-400 font-normal">{desc}</span>
+                        <span className="text-gray-400 dark:text-gray-500 font-normal">{desc}</span>
                       </button>
                     ))}
                   </div>
@@ -330,7 +330,7 @@ export default function SrtMakerTab() {
               {sentences && (
                 <button
                   onClick={() => { setSentences(""); setGenerated(false); }}
-                  className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                  className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                 >
                   Clear all
                 </button>
@@ -343,11 +343,11 @@ export default function SrtMakerTab() {
               {allLines.map((line, i) => (
                 <div
                   key={i}
-                  className="flex gap-2 p-2.5 rounded-lg border border-gray-200 bg-white focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400 transition-colors"
+                  className="flex gap-2 p-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400 transition-colors"
                   dir={langDir}
                 >
                   <span
-                    className="text-xs font-semibold text-gray-400 mt-0.5 w-5 flex-shrink-0 text-right"
+                    className="text-xs font-semibold text-gray-400 dark:text-gray-500 mt-0.5 w-5 flex-shrink-0 text-right"
                     style={{ userSelect: "none", WebkitUserSelect: "none", pointerEvents: "none" }}
                     aria-hidden="true"
                   >
@@ -361,7 +361,7 @@ export default function SrtMakerTab() {
                     onKeyDown={(e) => handleLineKeyDown(i, e)}
                     onPaste={(e) => handleLinePaste(i, e)}
                     placeholder={i === 0 ? "Type or paste sentences here…" : ""}
-                    className="flex-1 bg-transparent outline-none text-sm text-gray-700 placeholder-gray-300 leading-relaxed"
+                    className="flex-1 bg-transparent outline-none text-sm text-gray-700 dark:text-gray-200 placeholder-gray-300 leading-relaxed"
                     spellCheck={false}
                     dir={langDir}
                   />
@@ -372,13 +372,13 @@ export default function SrtMakerTab() {
         </div>
 
         {/* Card 3 — Output SRT */}
-        <div className="bg-white rounded-xl border border-gray-200 flex flex-col overflow-hidden">
-          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+        <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col overflow-hidden">
+          <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <span className="w-6 h-6 bg-emerald-500 text-white rounded-full text-xs flex items-center justify-center font-bold">3</span>
               <div>
-                <div className="font-semibold text-gray-800 text-sm">Output SRT</div>
-                <div className="text-xs text-gray-400">Preview & download</div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100 text-sm">Output SRT</div>
+                <div className="text-xs text-gray-400 dark:text-gray-500">Preview & download</div>
               </div>
             </div>
             {generated && srtCards.length > 0 && (
@@ -390,8 +390,8 @@ export default function SrtMakerTab() {
 
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
             {!generated ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-3 py-12">
-                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-500 gap-3 py-12">
+                <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
                   <Sparkles className="w-5 h-5" />
                 </div>
                 <div className="text-center">
@@ -423,7 +423,7 @@ export default function SrtMakerTab() {
                       <span className="w-5 h-5 bg-emerald-500 text-white rounded text-xs flex items-center justify-center font-bold flex-shrink-0">
                         {card.index}
                       </span>
-                      <span className="text-xs font-mono tabular-nums text-gray-500 truncate">
+                      <span className="text-xs font-mono tabular-nums text-gray-500 dark:text-gray-400 truncate">
                         {card.startTime} → {card.endTime}
                       </span>
                       {!card.text && (
@@ -433,7 +433,7 @@ export default function SrtMakerTab() {
                     <p className={`text-sm leading-relaxed ml-7 ${card.text ? "text-gray-800" : "text-gray-300 italic"}`} dir={langDir}>
                       {card.text || "—"}
                     </p>
-                    <p className="text-xs text-gray-400 mt-1 ml-7 truncate flex items-center gap-1">
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 ml-7 truncate flex items-center gap-1">
                       <FileText className="w-3 h-3" />
                       {card.name}
                     </p>
