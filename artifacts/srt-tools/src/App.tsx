@@ -117,10 +117,13 @@ export default function App() {
     [subtitles]
   );
 
-  const handleSelectTab = (id: Tab) => {
-    if (id === "splitter" && subtitles.length > 0) {
+  useEffect(() => {
+    if (subtitles.length > 0) {
       setSplitterIncomingKey((k) => k + 1);
     }
+  }, [subtitles]);
+
+  const handleSelectTab = (id: Tab) => {
     setActiveTab(id);
   };
 
