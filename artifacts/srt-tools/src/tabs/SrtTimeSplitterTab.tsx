@@ -212,6 +212,37 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
     setDotDone(true);
   };
 
+  const handleRunAll = () => {
+    if (!hasInput) return;
+    try {
+      const dottedInput = input.replace(/✅/g, ".");
+      setInput(dottedInput);
+      setDotDone(true);
+
+      const parsed = parseInput(dottedInput);
+      const cutBlocks = processBlocks(parsed);
+      const merged = mergeBlocksByMarkers(cutBlocks);
+      const trimmed = merged.map(b => ({
+        ...b,
+        text: b.text.replace(/✅/g, "."),
+        endTime: Math.max(b.startTime, b.endTime - 10),
+      }));
+      setOutputBlocks(trimmed);
+      setSplitDone(true);
+      setTrimDone(true);
+      toast({
+        title: "All steps applied",
+        description: `${trimmed.length} cards created, ✅ → . , -10ms trimmed.`,
+      });
+    } catch {
+      toast({
+        title: "Error processing",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const splitRef = useRef(handleSplitLine);
   const dotRef = useRef(handleEmojiToDot);
   const trimRef = useRef(handleTrimEnd10);
@@ -259,24 +290,9 @@ export default function SrtTimeSplitterTab({ incomingSrt, incomingFilename, inco
           </div>
           <div className="flex items-center gap-2.5">
             <Button
-              onClick={handleTrimEnd10}
-              disabled={outputBlocks.length === 0}
-              title="Trim 10ms from every card's end time"
-              className={`h-9 rounded-lg bg-gradient-to-b from-rose-500 to-rose-700 px-3.5 text-xs font-semibold tracking-wide text-white shadow-[0_3px_10px_rgba(190,18,60,0.28)] ring-1 ring-white/15 transition-all duration-200 hover:-translate-y-px hover:from-rose-600 hover:to-rose-800 hover:shadow-[0_5px_14px_rgba(190,18,60,0.32)] disabled:opacity-50 ${trimDone ? "opacity-60 hover:opacity-60" : ""}`}
-            >
-              -10
-            </Button>
-            <Button
-              onClick={handleEmojiToDot}
+              onClick={handleRunAll}
               disabled={!hasInput}
-              title="Convert all ✅ to ."
-              className={`h-9 rounded-lg px-3.5 text-xs font-semibold tracking-wide text-white shadow-[0_3px_10px_rgba(15,23,42,0.28)] ring-1 ring-white/10 disabled:opacity-50 transition-all duration-200 hover:-translate-y-px hover:shadow-[0_5px_14px_rgba(15,23,42,0.32)] bg-gradient-to-b from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black ${dotDone ? "opacity-60 hover:opacity-60" : ""}`}
-            >
-              .
-            </Button>
-            <Button
-              onClick={handleSplitLine}
-              disabled={!hasInput}
+              title="Convert ✅ → . , Split Lines, and trim -10ms"
               className={`h-9 rounded-lg bg-gradient-to-b from-[#f97316] to-[#ea580c] px-3.5 text-xs font-semibold tracking-wide text-white shadow-[0_3px_10px_rgba(234,88,12,0.28)] ring-1 ring-white/15 transition-all duration-200 hover:-translate-y-px hover:from-[#ea580c] hover:to-[#c2410c] hover:shadow-[0_5px_14px_rgba(234,88,12,0.32)] disabled:bg-orange-300 ${splitDone ? "opacity-60 hover:opacity-60" : ""}`}
             >
               <Menu className="h-3.5 w-3.5" /> Split Lines
