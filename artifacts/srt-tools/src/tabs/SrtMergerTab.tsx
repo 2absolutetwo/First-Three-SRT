@@ -396,57 +396,57 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                     ? timeToMs(entry.endTime) > timeToMs(nextEntry.startTime)
                     : false;
                   return (
-                  <div key={i} className={`border rounded px-1.5 py-0.5 transition-colors ${
+                  <div key={i} className={`border rounded-lg p-3 transition-colors ${
                     isOverlapping
                       ? "border-red-200 bg-red-50/40 hover:bg-red-50"
                       : "border-gray-100 bg-gray-50/50 hover:bg-white"
                   }`}>
-                    <div className="flex items-center justify-between gap-1.5">
-                      <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                        <span className={`w-4 h-4 rounded text-[10px] flex items-center justify-center font-bold flex-shrink-0 ${
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <span className={`w-5 h-5 rounded text-xs flex items-center justify-center font-bold flex-shrink-0 ${
                           isOverlapping ? "bg-red-100 text-red-600" : "bg-blue-100 text-blue-600"
                         }`}>
                           {i + 1}
                         </span>
-                        <span className={`text-[10px] font-mono tabular-nums flex-shrink-0 ${
+                        <span className={`text-xs font-mono tabular-nums truncate ${
                           isOverlapping ? "text-red-500" : "text-gray-500"
                         }`}>
-                          {entry.startTime}→{entry.endTime}
-                          {isOverlapping && <span className="ml-0.5 text-red-400">⚠</span>}
+                          {entry.startTime} → {entry.endTime}
+                          {isOverlapping && <span className="ml-1 text-red-400">⚠</span>}
                         </span>
-                        {entry.text && (
-                          <span className="text-[11px] text-gray-600 dark:text-gray-300 truncate">{entry.text}</span>
-                        )}
                       </div>
-                      <div className="flex items-center gap-0 flex-shrink-0">
+                      <div className="flex items-center gap-0.5 flex-shrink-0">
                         <button
                           onClick={() => moveEntry(i, -1)}
                           disabled={i === 0}
                           className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors"
                         >
-                          <ChevronUp className="w-2.5 h-2.5 text-gray-500 dark:text-gray-400" />
+                          <ChevronUp className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </button>
                         <button
                           onClick={() => moveEntry(i, 1)}
                           disabled={i === srtEntries.length - 1}
                           className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-30 transition-colors"
                         >
-                          <ChevronDown className="w-2.5 h-2.5 text-gray-500 dark:text-gray-400" />
+                          <ChevronDown className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </button>
                         <button
                           onClick={() => addEntryAfter(i)}
                           className="p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                         >
-                          <Plus className="w-2.5 h-2.5 text-gray-500 dark:text-gray-400" />
+                          <Plus className="w-3 h-3 text-gray-500 dark:text-gray-400" />
                         </button>
                         <button
                           onClick={() => deleteEntry(i)}
                           className="p-0.5 rounded hover:bg-red-100 transition-colors"
                         >
-                          <Trash2 className="w-2.5 h-2.5 text-red-400" />
+                          <Trash2 className="w-3 h-3 text-red-400" />
                         </button>
                       </div>
                     </div>
+                    {entry.text && (
+                      <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 ml-7 leading-relaxed line-clamp-2">{entry.text}</p>
+                    )}
                   </div>
                   );
                 })}
