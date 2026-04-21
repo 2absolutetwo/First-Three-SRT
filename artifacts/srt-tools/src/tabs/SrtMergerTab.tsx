@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Upload, Download, Sparkles, X, ChevronUp, ChevronDown, Plus, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -110,8 +110,23 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
   const [isGenerated, setIsGenerated] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState("");
+  const [showNotepad, setShowNotepad] = useState(false);
+  const [notepadText, setNotepadText] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("srt-merger-notepad");
+      if (saved !== null) setNotepadText(saved);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("srt-merger-notepad", notepadText);
+    } catch {}
+  }, [notepadText]);
 
   const handleAddMore = () => {
     const newLines = addMoreText
@@ -241,7 +256,13 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
       <div className="w-full mx-auto px-6 pt-4 flex-shrink-0">
       <div className="bg-white border border-gray-200 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-emerald-500" />
+          <button
+            onClick={() => setShowNotepad(true)}
+            title="Open notepad"
+            className="p-1 -m-1 rounded hover:bg-emerald-50 transition-colors"
+          >
+            <FileText className="w-5 h-5 text-emerald-500" />
+          </button>
           <span className="font-semibold text-gray-800 text-sm">SRT Merger</span>
           {matchCount > 0 && (
             <span className="ml-2 bg-emerald-50 text-emerald-600 border border-emerald-200 text-xs px-2 py-0.5 rounded-full font-medium">
@@ -610,6 +631,59 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
           </div>
         </div>
       </div>
+
+      {showNotepad && (
+        <div
+          className="fixed inset-0 z-50 bg-black/30 flex items-start justify-start"
+          onClick={() => setShowNotepad(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-xl border border-gray-200 shadow-2xl flex flex-col overflow-hidden"
+            style={{
+              width: "calc((100vw - 56px) / 3)",
+              height: "calc(100vh - 96px)",
+              marginTop: "72px",
+              marginLeft: "24px",
+            }}
+          >
+            <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-emerald-500" />
+                <div>
+                  <div className="font-semibold text-gray-800 text-sm">Notepad</div>
+                  <div className="text-xs text-gray-400">Quick notes — auto-saved</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                {notepadText && (
+                  <button
+                    onClick={() => setNotepadText("")}
+                    className="text-xs text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+                <button
+                  onClick={() => setShowNotepad(false)}
+                  className="p-1 rounded hover:bg-gray-100 transition-colors"
+                  title="Close"
+                >
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 p-3 min-h-0">
+              <Textarea
+                value={notepadText}
+                onChange={(e) => setNotepadText(e.target.value)}
+                placeholder="Write anything here..."
+                className="w-full h-full text-sm resize-none border-gray-200 focus:border-emerald-400 focus:ring-emerald-400"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
