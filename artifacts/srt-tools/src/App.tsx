@@ -151,7 +151,7 @@ export default function App() {
         <SrtMergerTab
           setSubtitles={setSubtitles}
           setFilename={setFilename}
-          onGenerated={() => setActiveTab("editor")}
+          onGenerated={() => {}}
         />
       </div>
 
