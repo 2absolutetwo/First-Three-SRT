@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { type Subtitle } from "@/lib/srt";
 import SrtEditorTab from "@/tabs/SrtEditorTab";
-import TextSplitterTab from "@/tabs/TextSplitterTab";
 import SrtConverterTab from "@/tabs/SrtConverterTab";
-import SrtNoteTab from "@/tabs/SrtNoteTab";
 import SrtMakerTab from "@/tabs/SrtMakerTab";
-import VoiceTrimmerTab from "@/tabs/VoiceTrimmerTab";
 
-type Tab = "editor" | "splitter" | "converter" | "note" | "maker" | "trimmer";
+type Tab = "editor" | "converter" | "maker";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -16,15 +13,6 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-  {
-    id: "splitter",
-    label: "Text Splitter",
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
       </svg>
     ),
   },
@@ -38,29 +26,11 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    id: "note",
-    label: "SRT Note",
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-      </svg>
-    ),
-  },
-  {
     id: "maker",
     label: "SRT Maker",
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-      </svg>
-    ),
-  },
-  {
-    id: "trimmer",
-    label: "Voice Trimmer",
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
       </svg>
     ),
   },
@@ -111,11 +81,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* SRT Note — always mounted, hidden when inactive */}
-      <div style={{ display: activeTab === "note" ? "flex" : "none" }} className="flex-col flex-1 overflow-hidden">
-        <SrtNoteTab />
-      </div>
-
       {/* SRT Maker — always mounted, hidden when inactive */}
       <div style={{ display: activeTab === "maker" ? "flex" : "none" }} className="flex-col flex-1 overflow-hidden">
         <main className="px-4 py-5 flex-1 overflow-hidden">
@@ -123,16 +88,9 @@ export default function App() {
         </main>
       </div>
 
-      {/* Voice Trimmer — always mounted, hidden when inactive */}
-      <div style={{ display: activeTab === "trimmer" ? "block" : "none" }} className="flex-1 overflow-y-auto">
-        <main className="max-w-3xl mx-auto px-6 py-5">
-          <VoiceTrimmerTab />
-        </main>
-      </div>
-
       {/* Other tabs */}
       <main
-        style={{ display: (activeTab === "note" || activeTab === "maker" || activeTab === "trimmer") ? "none" : "block" }}
+        style={{ display: activeTab === "maker" ? "none" : "block" }}
         className="max-w-5xl mx-auto px-4 py-5 flex-1 overflow-y-auto w-full"
       >
         {activeTab === "editor" && (
@@ -141,12 +99,6 @@ export default function App() {
             filename={filename}
             setSubtitles={setSubtitles}
             setFilename={setFilename}
-          />
-        )}
-        {activeTab === "splitter" && (
-          <TextSplitterTab
-            editorSubtitles={subtitles}
-            editorFilename={filename}
           />
         )}
         {activeTab === "converter" && (
