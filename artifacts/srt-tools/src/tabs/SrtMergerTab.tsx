@@ -3,6 +3,13 @@ import { Upload, Download, Sparkles, X, ChevronUp, ChevronDown, Plus, Trash2, Fi
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { parseSrt, type Subtitle } from "@/lib/srt";
+
+interface SrtMergerTabProps {
+  setSubtitles?: (subs: Subtitle[]) => void;
+  setFilename?: (name: string) => void;
+  onGenerated?: () => void;
+}
 
 interface SRTEntry {
   index: number;
@@ -95,7 +102,7 @@ function generateSRT(entries: SRTEntry[], sentences: string[]): string {
   return lines.join("\n");
 }
 
-export default function SrtMergerTab() {
+export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }: SrtMergerTabProps = {}) {
   const [srtEntries, setSrtEntries] = useState<SRTEntry[]>([]);
   const [sentenceText, setSentenceText] = useState("");
   const [addMoreText, setAddMoreText] = useState("");
@@ -249,7 +256,12 @@ export default function SrtMergerTab() {
                 toast({ title: "Not ready", description: "Upload SRT and add sentences first", variant: "destructive" });
               } else {
                 setIsGenerated(true);
-                toast({ title: "SRT Generated!", description: `${outputEntries.length} subtitles merged` });
+                const content = generateSRT(srtEntries, sentences);
+                const parsed = parseSrt(content);
+                setSubtitles?.(parsed);
+                setFilename?.(fileName || "merged.srt");
+                onGenerated?.();
+                toast({ title: "SRT Generated!", description: `${outputEntries.length} subtitles merged → sent to SRT Editor` });
               }
             }}
             className="bg-orange-500 hover:bg-orange-600 text-white text-sm h-8 px-3 gap-1.5"

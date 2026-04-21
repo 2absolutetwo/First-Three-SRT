@@ -29,6 +29,7 @@ interface Props {
   filename: string;
   setSubtitles: (s: Subtitle[]) => void;
   setFilename: (f: string) => void;
+  onNext?: () => void;
 }
 
 function timeToMs(t: string): number {
@@ -46,7 +47,7 @@ function msToTime(ms: number): string {
   return `${h}:${m}:${s},${msStr}`;
 }
 
-export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFilename }: Props) {
+export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFilename, onNext }: Props) {
   const [convertStats, setConvertStats] = useState<{ marks: number; ellipsis: number } | null>(null);
   const [converted, setConverted] = useState(false);
   const [pasteOpen, setPasteOpen] = useState(false);
@@ -276,6 +277,19 @@ export default function SrtEditorTab({ subtitles, filename, setSubtitles, setFil
           </svg>
           Download SRT
         </button>
+
+        {onNext && (
+          <button
+            onClick={onNext}
+            disabled={subtitles.length === 0}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed shadow-sm transition-colors"
+          >
+            Next: SRT Line
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </button>
+        )}
       </div>
 
       <input ref={fileInputRef} type="file" accept=".srt,.txt" className="hidden" onChange={handleFileInput} />

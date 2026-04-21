@@ -148,7 +148,11 @@ export default function App() {
 
       {/* SRT Marger — full width, hidden when inactive */}
       <div style={{ display: activeTab === "merger" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
-        <SrtMergerTab />
+        <SrtMergerTab
+          setSubtitles={setSubtitles}
+          setFilename={setFilename}
+          onGenerated={() => setActiveTab("editor")}
+        />
       </div>
 
       {/* Audio Spliter — full width, hidden when inactive */}
@@ -172,6 +176,7 @@ export default function App() {
             filename={filename}
             setSubtitles={setSubtitles}
             setFilename={setFilename}
+            onNext={() => setActiveTab("converter")}
           />
         )}
         {activeTab === "converter" && (
