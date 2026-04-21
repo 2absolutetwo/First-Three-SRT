@@ -202,10 +202,26 @@ function UploadTile({
           icon: "text-rose-600 dark:text-rose-400",
         };
 
+  const idle = {
+    bg: "bg-[#f7f6f2] dark:bg-slate-900/60",
+    border: "border-slate-200/80 dark:border-slate-800",
+    hover: "hover:border-slate-300 hover:bg-[#f3f2ed] dark:hover:bg-slate-900/80",
+    icon: "text-slate-500 dark:text-slate-400",
+  };
+
+  const active = !!file;
+  const containerClasses = alert
+    ? "border-amber-400 dark:border-amber-500/70 bg-amber-50/80 dark:bg-amber-950/30"
+    : active
+      ? `${palette.border} ${palette.bg}`
+      : `${idle.border} ${idle.bg}`;
+  const hoverClasses = active ? palette.hover : idle.hover;
+  const iconColor = active ? palette.icon : idle.icon;
+
   return (
     <div
       onClick={() => inputRef.current?.click()}
-      className={`relative cursor-pointer rounded-2xl border ${alert ? "border-amber-400 dark:border-amber-500/70 bg-amber-50/80 dark:bg-amber-950/30" : `${palette.border} ${palette.bg}`} ${palette.hover} px-5 py-4 transition-all`}
+      className={`relative cursor-pointer rounded-2xl border ${containerClasses} ${hoverClasses} px-5 py-4 transition-all`}
     >
       {alert && (
         <div
@@ -224,7 +240,7 @@ function UploadTile({
       />
       <div className="flex items-center gap-4">
         <div
-          className={`shrink-0 w-11 h-11 rounded-xl bg-white/80 dark:bg-slate-900/60 flex items-center justify-center ${palette.icon} shadow-sm`}
+          className={`shrink-0 w-11 h-11 rounded-xl bg-white/80 dark:bg-slate-900/60 flex items-center justify-center ${iconColor} shadow-sm`}
         >
           {icon}
         </div>
