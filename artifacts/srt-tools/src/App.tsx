@@ -6,8 +6,9 @@ import SrtMakerTab from "@/tabs/SrtMakerTab";
 import SrtNoteTab from "@/tabs/SrtNoteTab";
 import SrtTimeSplitterTab from "@/tabs/SrtTimeSplitterTab";
 import SrtMergerTab from "@/tabs/SrtMergerTab";
+import VoiceTrimmerTab from "@/tabs/VoiceTrimmerTab";
 
-type Tab = "editor" | "converter" | "maker" | "note" | "splitter" | "merger";
+type Tab = "editor" | "converter" | "maker" | "note" | "splitter" | "merger" | "audio";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -61,6 +62,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+      </svg>
+    ),
+  },
+  {
+    id: "audio",
+    label: "Audio Spliter",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
       </svg>
     ),
   },
@@ -133,9 +143,14 @@ export default function App() {
         <SrtMergerTab />
       </div>
 
+      {/* Audio Spliter — full width, hidden when inactive */}
+      <div style={{ display: activeTab === "audio" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
+        <VoiceTrimmerTab />
+      </div>
+
       {/* Other tabs */}
       <main
-        style={{ display: activeTab === "maker" || activeTab === "note" || activeTab === "splitter" || activeTab === "merger" ? "none" : "block" }}
+        style={{ display: activeTab === "maker" || activeTab === "note" || activeTab === "splitter" || activeTab === "merger" || activeTab === "audio" ? "none" : "block" }}
         className="max-w-5xl mx-auto px-4 py-5 flex-1 overflow-y-auto w-full"
       >
         {activeTab === "editor" && (
