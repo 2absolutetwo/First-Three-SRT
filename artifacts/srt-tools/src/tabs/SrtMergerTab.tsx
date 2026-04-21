@@ -444,19 +444,6 @@ export default function SrtMergerTab() {
                   {sentences.length} lines
                 </span>
               )}
-              {sentenceText && (
-                <button
-                  onClick={() => {
-                    setSentenceHistory((h) => [...h, sentenceText]);
-                    setSentenceText((prev) => cleanSentenceBlock(prev));
-                    toast({ title: "Numbers removed", description: "Leading numbering stripped from all lines" });
-                  }}
-                  title="Remove leading (1), 1., 1) etc."
-                  className="text-xs text-purple-500 hover:text-purple-600 font-medium border border-purple-200 hover:border-purple-300 bg-purple-50 hover:bg-purple-100 px-2 py-0.5 rounded transition-colors"
-                >
-                  Remove numbers
-                </button>
-              )}
               {sentenceHistory.length > 0 && (
                 <button
                   onClick={handleUndo}
