@@ -339,12 +339,16 @@ export default function SrtMakerTab() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-3">
-            <div className="rounded-lg border border-gray-200 focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400 bg-white px-3 py-2 min-h-full">
+            <div className="space-y-2">
               {allLines.map((line, i) => (
-                <div key={i} className="flex items-center min-h-[1.85rem]" dir={langDir}>
+                <div
+                  key={i}
+                  className="flex gap-2 p-2.5 rounded-lg border border-gray-200 bg-white focus-within:border-emerald-400 focus-within:ring-1 focus-within:ring-emerald-400 transition-colors"
+                  dir={langDir}
+                >
                   <span
-                    className="shrink-0 text-xs text-gray-400 font-mono"
-                    style={{ userSelect: "none", WebkitUserSelect: "none", pointerEvents: "none", paddingInlineEnd: "6px", minWidth: "1.5rem", textAlign: "right" }}
+                    className="text-xs font-semibold text-gray-400 mt-0.5 w-5 flex-shrink-0 text-right"
+                    style={{ userSelect: "none", WebkitUserSelect: "none", pointerEvents: "none" }}
                     aria-hidden="true"
                   >
                     {i + 1}.
@@ -357,7 +361,7 @@ export default function SrtMakerTab() {
                     onKeyDown={(e) => handleLineKeyDown(i, e)}
                     onPaste={(e) => handleLinePaste(i, e)}
                     placeholder={i === 0 ? "Type or paste sentences here…" : ""}
-                    className="flex-1 bg-transparent outline-none text-sm text-gray-700 placeholder-gray-300 py-0.5"
+                    className="flex-1 bg-transparent outline-none text-sm text-gray-700 placeholder-gray-300 leading-relaxed"
                     spellCheck={false}
                     dir={langDir}
                   />
