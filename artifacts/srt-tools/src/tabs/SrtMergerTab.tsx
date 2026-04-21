@@ -816,7 +816,7 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
                             Copy
                           </button>
                         </div>
-                        <pre className="px-3 py-1.5 text-xs leading-snug text-gray-800 dark:text-gray-100 whitespace-pre-wrap font-sans">{c.text}</pre>
+                        <pre className="px-3 py-1.5 text-xs leading-snug text-gray-800 dark:text-gray-100 whitespace-pre-wrap font-sans max-h-40 overflow-y-auto">{c.text}</pre>
                       </div>
                     ));
                   })()}
