@@ -257,7 +257,15 @@ export default function SrtMergerTab({ setSubtitles, setFilename, onGenerated }:
       <div className="bg-white border border-gray-200 rounded-xl px-6 py-3 flex items-center justify-between shadow-sm">
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowNotepad(true)}
+            onClick={() => {
+              if (srtEntries.length > 0) {
+                const converted = srtEntries
+                  .map((entry, i) => `(${i + 1}) ${entry.text.replace(/\n/g, " ")}`)
+                  .join("\n");
+                setNotepadText(converted);
+              }
+              setShowNotepad(true);
+            }}
             title="Open notepad"
             className="p-1 -m-1 rounded hover:bg-emerald-50 transition-colors"
           >
