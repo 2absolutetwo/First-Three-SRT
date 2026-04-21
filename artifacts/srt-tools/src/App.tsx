@@ -198,7 +198,6 @@ export default function App() {
             setVideoIncomingSrt(srt);
             setVideoIncomingSrtFilename(name);
             setVideoIncomingSrtKey((k) => k + 1);
-            setActiveTab("video");
           }}
         />
       </div>
