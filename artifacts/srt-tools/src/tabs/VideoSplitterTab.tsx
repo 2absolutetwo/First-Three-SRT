@@ -656,53 +656,45 @@ function Home({
     })();
 
     try {
+      // Process clips one at a time using input-seek (`-ss` BEFORE `-i`)
+      // for keyframe-aligned fast cuts with no leading freeze/blank.
+      // Trade-off: each clip starts at the nearest prior keyframe, so the
+      // clip may begin up to ~GOP-size seconds earlier than the SRT cue.
       for (const batch of batches) {
-        // Mark batch running
-        const runningSet = new Set(batch.map((c) => c.index));
-        updateStatus((clips) =>
-          clips.map((c) =>
-            runningSet.has(c.index) ? { ...c, status: "running" } : c,
-          ),
-        );
+        for (const clip of batch) {
+          updateStatus((clips) =>
+            clips.map((c) =>
+              c.index === clip.index ? { ...c, status: "running" } : c,
+            ),
+          );
 
-        // Build args: one input, many outputs (stream-copy, no re-encode)
-        const outNames = batch.map(
-          (c) => `out_${String(c.index).padStart(padWidth, "0")}${ext}`,
-        );
-        const args: string[] = [
-          "-y",
-          "-hide_banner",
-          "-loglevel",
-          "error",
-          "-i",
-          inputName,
-        ];
-        batch.forEach((clip, i) => {
+          const outName = `out_${String(clip.index).padStart(padWidth, "0")}${ext}`;
           const duration = clip.endSec - clip.startSec;
-          args.push(
+          const args: string[] = [
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
             "-ss",
             clip.startSec.toFixed(3),
+            "-i",
+            inputName,
             "-t",
             duration.toFixed(3),
             "-c",
             "copy",
             "-avoid_negative_ts",
             "make_zero",
-            outNames[i]!,
-          );
-        });
+            outName,
+          ];
 
-        let batchErr: string | null = null;
-        try {
-          await ffmpeg.exec(args);
-        } catch (err) {
-          batchErr = err instanceof Error ? err.message : String(err);
-        }
+          let clipErr: string | null = null;
+          try {
+            await ffmpeg.exec(args);
+          } catch (err) {
+            clipErr = err instanceof Error ? err.message : String(err);
+          }
 
-        // Read outputs that exist; mark done/error per clip
-        for (let i = 0; i < batch.length; i++) {
-          const clip = batch[i]!;
-          const outName = outNames[i]!;
           try {
             const data = await ffmpeg.readFile(outName);
             const u8 =
@@ -721,14 +713,13 @@ function Home({
                 c.index === clip.index ? { ...c, status: "done" } : c,
               ),
             );
-            // Free the FS entry
             try {
               await ffmpeg.deleteFile(outName);
             } catch {
               // ignore
             }
           } catch {
-            const msg = batchErr || "Cut failed";
+            const msg = clipErr || "Cut failed";
             updateStatus((clips) =>
               clips.map((c) =>
                 c.index === clip.index
@@ -736,6 +727,11 @@ function Home({
                   : c,
               ),
             );
+            try {
+              await ffmpeg.deleteFile(outName);
+            } catch {
+              // ignore
+            }
           }
         }
       }
