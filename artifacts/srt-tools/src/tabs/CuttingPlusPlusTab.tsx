@@ -65,7 +65,31 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
-function getMediaDuration(file: File, kind: "audio" | "video"): Promise<number> {
+const DURATION_CONCURRENCY = 3;
+let __durationActive = 0;
+const __durationQueue: (() => void)[] = [];
+
+function __acquireDurationSlot(): Promise<void> {
+  return new Promise((resolve) => {
+    const tryAcquire = () => {
+      if (__durationActive < DURATION_CONCURRENCY) {
+        __durationActive++;
+        resolve();
+      } else {
+        __durationQueue.push(tryAcquire);
+      }
+    };
+    tryAcquire();
+  });
+}
+
+function __releaseDurationSlot() {
+  __durationActive--;
+  const next = __durationQueue.shift();
+  if (next) next();
+}
+
+function readDurationOnce(file: File, kind: "audio" | "video"): Promise<number> {
   return new Promise((resolve, reject) => {
     const el = document.createElement(kind) as HTMLMediaElement;
     el.preload = "metadata";
@@ -125,10 +149,28 @@ function getMediaDuration(file: File, kind: "audio" | "video"): Promise<number> 
         cleanup();
         reject(new Error(`Timed out reading duration of ${kind} file`));
       }
-    }, 15000);
+    }, 45000);
 
     el.src = url;
   });
+}
+
+async function getMediaDuration(file: File, kind: "audio" | "video"): Promise<number> {
+  await __acquireDurationSlot();
+  try {
+    try {
+      return await readDurationOnce(file, kind);
+    } catch (err) {
+      // One automatic retry — sometimes browsers fail under load
+      try {
+        return await readDurationOnce(file, kind);
+      } catch {
+        throw err;
+      }
+    }
+  } finally {
+    __releaseDurationSlot();
+  }
 }
 
 type Stage = "idle" | "reading" | "cutting" | "done" | "error";
