@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { Download, Play, Square, RotateCcw } from "lucide-react";
 import { AudioFile } from "@/hooks/useAudioAnalysis";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 interface DownloadPanelProps {
   files: AudioFile[];
@@ -105,6 +106,7 @@ function FolderCard({
 }
 
 export default function DownloadPanel({ files }: DownloadPanelProps) {
+  const isDark = useDarkMode();
   const trimmedFiles = files.filter((f) => f.isTrimmed && f.trimmedBlob);
   const [downloaded, setDownloaded] = useState<Record<string, boolean>>({});
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -171,15 +173,17 @@ export default function DownloadPanel({ files }: DownloadPanelProps) {
 
   return (
     <div className="rounded-xl overflow-hidden transition-all duration-300" style={{
-      background: "white",
+      background: isDark ? "hsl(220,18%,14%)" : "white",
       border: someDownloaded ? "2px solid hsl(0,72%,60%)" : "2px solid hsl(142,70%,50%)",
-      boxShadow: someDownloaded ? "0 2px 20px rgba(239,68,68,0.12)" : "0 2px 20px rgba(34,197,94,0.12)",
+      boxShadow: someDownloaded
+        ? `0 2px 20px ${isDark ? "rgba(239,68,68,0.25)" : "rgba(239,68,68,0.12)"}`
+        : `0 2px 20px ${isDark ? "rgba(34,197,94,0.22)" : "rgba(34,197,94,0.12)"}`,
     }}>
       <div className="flex items-center justify-between px-5 py-2.5"
-        style={{ background: "hsl(220,15%,97%)", borderBottom: "1px solid hsl(220,15%,90%)" }}>
+        style={{ background: isDark ? "hsl(220,18%,12%)" : "hsl(220,15%,97%)", borderBottom: `1px solid ${isDark ? "hsl(220,15%,20%)" : "hsl(220,15%,90%)"}` }}>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold" style={{ color: "hsl(220,15%,40%)" }}>
+          <span className="text-xs font-semibold" style={{ color: isDark ? "hsl(220,10%,70%)" : "hsl(220,15%,40%)" }}>
             total : {trimmedFiles.length}
           </span>
           <button
@@ -219,19 +223,19 @@ export default function DownloadPanel({ files }: DownloadPanelProps) {
           </button>
         </div>
 
-        <span className="text-sm font-bold tracking-wide" style={{ color: "hsl(220,20%,22%)" }}>
+        <span className="text-sm font-bold tracking-wide" style={{ color: isDark ? "hsl(220,10%,90%)" : "hsl(220,20%,22%)" }}>
           Trimmed Files
         </span>
 
         {someDownloaded ? (
-          <div className="text-right text-[11px] font-medium leading-tight" style={{ color: "hsl(220,15%,45%)" }}>
+          <div className="text-right text-[11px] font-medium leading-tight" style={{ color: isDark ? "hsl(220,10%,65%)" : "hsl(220,15%,45%)" }}>
             <div>Downloaded &nbsp;<span style={{ color: "hsl(0,72%,51%)" }}>: {downloadedCount}</span></div>
             <div>Not Downloaded &nbsp;<span style={{ color: "hsl(142,70%,40%)" }}>: {notDownloadedCount}</span></div>
           </div>
         ) : <div className="w-28" />}
       </div>
 
-      <div className="p-3" style={{ background: "hsl(220,20%,98%)" }}>
+      <div className="p-3" style={{ background: isDark ? "hsl(220,18%,11%)" : "hsl(220,20%,98%)" }}>
         <div className="grid gap-1.5" style={{ gridTemplateColumns: "repeat(10, minmax(0, 1fr))" }}>
           {trimmedFiles.map((file, index) => (
             <FolderCard

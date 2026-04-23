@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Play, Pause, Trash2, Music, Download, Scissors } from "lucide-react";
 import { AudioFile } from "@/hooks/useAudioAnalysis";
+import { useDarkMode } from "@/hooks/useDarkMode";
 
 type SplitStage = "idle" | "preview" | "trimming" | "done";
 
@@ -27,6 +28,7 @@ function Waveform({ data, duration, playProgress }: {
   playProgress: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const isDark = useDarkMode();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -40,7 +42,7 @@ function Waveform({ data, duration, playProgress }: {
     canvas.height = H * dpr;
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = "#f8fafc";
+    ctx.fillStyle = isDark ? "hsl(220,18%,10%)" : "#f8fafc";
     ctx.fillRect(0, 0, W, H);
     const mid = H / 2;
     const numPoints = Math.min(data.length, W * 2);
@@ -75,7 +77,7 @@ function Waveform({ data, duration, playProgress }: {
       ctx.fillStyle = "rgba(30,30,30,0.45)";
       ctx.fillRect(playX - 1, 3, 2, H - 6);
     }
-  }, [data, duration, playProgress]);
+  }, [data, duration, playProgress, isDark]);
 
   return (
     <canvas ref={canvasRef} style={{ display: "block", width: "100%", height: "100%" }} />
@@ -109,6 +111,7 @@ function usePlayer(file: File | Blob) {
 }
 
 export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProps) {
+  const isDark = useDarkMode();
   const original = usePlayer(audio.file);
   const trimmedPlayer = usePlayer(audio.trimmedBlob ?? audio.file);
   const showTrimmed = audio.isTrimmed;
@@ -141,22 +144,28 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
     <div
       className="rounded-xl overflow-hidden transition-all duration-300"
       style={{
-        background: "white",
-        border: showTrimmed ? "1px solid hsl(185,65%,70%)" : "1px solid hsl(220,15%,88%)",
-        boxShadow: showTrimmed ? "0 1px 6px rgba(15,160,155,0.12)" : "0 1px 3px rgba(0,0,0,0.06)",
+        background: isDark ? "hsl(220,18%,14%)" : "white",
+        border: showTrimmed
+          ? `1px solid ${isDark ? "hsl(185,55%,32%)" : "hsl(185,65%,70%)"}`
+          : `1px solid ${isDark ? "hsl(220,15%,24%)" : "hsl(220,15%,88%)"}`,
+        boxShadow: showTrimmed
+          ? `0 1px 6px ${isDark ? "rgba(15,160,155,0.18)" : "rgba(15,160,155,0.12)"}`
+          : `0 1px 3px ${isDark ? "rgba(0,0,0,0.4)" : "rgba(0,0,0,0.06)"}`,
       }}
     >
       {/* Header */}
       <div
         className="flex items-center justify-between px-3 py-1.5"
         style={{
-          background: showTrimmed ? "hsl(185,60%,97%)" : "hsl(220,20%,98%)",
-          borderBottom: "1px solid hsl(220,15%,91%)",
+          background: showTrimmed
+            ? (isDark ? "hsl(185,30%,14%)" : "hsl(185,60%,97%)")
+            : (isDark ? "hsl(220,18%,12%)" : "hsl(220,20%,98%)"),
+          borderBottom: `1px solid ${isDark ? "hsl(220,15%,20%)" : "hsl(220,15%,91%)"}`,
         }}
       >
         <div className="flex items-center gap-2 min-w-0">
-          <Music className="w-3.5 h-3.5 shrink-0" style={{ color: "hsl(185,65%,38%)" }} />
-          <span className="text-xs font-semibold truncate" style={{ color: "hsl(220,20%,18%)" }}>
+          <Music className="w-3.5 h-3.5 shrink-0" style={{ color: isDark ? "hsl(185,55%,55%)" : "hsl(185,65%,38%)" }} />
+          <span className="text-xs font-semibold truncate" style={{ color: isDark ? "hsl(220,10%,90%)" : "hsl(220,20%,18%)" }}>
             {audio.name}
           </span>
           {showTrimmed && (
@@ -221,16 +230,16 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
             onClick={() => onRemove(audio.id)}
             className="w-6 h-6 rounded-full flex items-center justify-center transition-all"
             style={{ background: "transparent" }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.10)")}
+            onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(239,68,68,0.15)")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
           >
-            <Trash2 className="w-3 h-3" style={{ color: "hsl(220,10%,65%)" }} />
+            <Trash2 className="w-3 h-3" style={{ color: isDark ? "hsl(220,10%,55%)" : "hsl(220,10%,65%)" }} />
           </button>
         </div>
       </div>
 
       {/* Waveform */}
-      <div className="relative" style={{ height: "62px", background: "#f8fafc" }}>
+      <div className="relative" style={{ height: "62px", background: isDark ? "hsl(220,18%,10%)" : "#f8fafc" }}>
         {audio.status === "analyzing" && (
           <div className="absolute inset-0 flex items-center justify-center gap-1">
             {[0.4, 0.7, 1, 0.7, 0.4].map((h, i) => (
@@ -294,10 +303,10 @@ export default function AudioCard({ audio, onRemove, splitStage }: AudioCardProp
       {audio.status === "ready" && activeDuration > 0 && (
         <div
           className="flex justify-between px-2 pt-0.5 pb-1"
-          style={{ background: "#f8fafc", borderTop: "1px solid hsl(220,15%,92%)" }}
+          style={{ background: isDark ? "hsl(220,18%,10%)" : "#f8fafc", borderTop: `1px solid ${isDark ? "hsl(220,15%,20%)" : "hsl(220,15%,92%)"}` }}
         >
           {timeMarkers.map((label, i) => (
-            <span key={i} className="text-[9px] font-mono" style={{ color: "hsl(220,10%,70%)" }}>
+            <span key={i} className="text-[9px] font-mono" style={{ color: isDark ? "hsl(220,10%,55%)" : "hsl(220,10%,70%)" }}>
               {label}
             </span>
           ))}
