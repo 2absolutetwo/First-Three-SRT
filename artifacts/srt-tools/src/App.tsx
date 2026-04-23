@@ -296,7 +296,13 @@ export default function App() {
 
       {/* Cutting + — full width, hidden when inactive */}
       <div style={{ display: activeTab === "cuttingPlus" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
-        <CuttingPlusTab incomingVideoFiles={cuttingPlusIncomingVideos} />
+        <CuttingPlusTab
+          incomingVideoFiles={cuttingPlusIncomingVideos}
+          onSendToCuttingPlusPlus={(files) => {
+            setCuttingIncomingAudio({ files, key: Date.now() });
+            handleSelectTab("cutting");
+          }}
+        />
       </div>
 
       {/* Cutting ++ — full width, hidden when inactive */}

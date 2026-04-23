@@ -74,8 +74,10 @@ interface IncomingVideoFiles {
 
 export default function CuttingPlusTab({
   incomingVideoFiles,
+  onSendToCuttingPlusPlus,
 }: {
   incomingVideoFiles?: IncomingVideoFiles;
+  onSendToCuttingPlusPlus?: (files: File[]) => void;
 } = {}) {
   const { toast } = useToast();
   const [items, setItems] = useState<VideoItem[]>([]);
@@ -335,6 +337,27 @@ export default function CuttingPlusTab({
     document.body.removeChild(a);
   };
 
+  const sendDoneToCuttingPlusPlus = () => {
+    const done = items.filter((i) => i.status === "done" && i.resultBlob);
+    if (done.length === 0) {
+      toast({
+        title: "Nothing to send",
+        description: "Process some videos first",
+      });
+      return;
+    }
+    if (!onSendToCuttingPlusPlus) return;
+    const files: File[] = done.map((it) => {
+      const name = trimmedFileName(it.file.name);
+      const type = it.resultBlob!.type || it.file.type || "video/mp4";
+      return new File([it.resultBlob!], name, { type });
+    });
+    onSendToCuttingPlusPlus(files);
+    toast({
+      title: `Sent ${files.length} clip${files.length === 1 ? "" : "s"} to Cutting ++`,
+    });
+  };
+
   const downloadAllZip = async () => {
     const done = items.filter((i) => i.status === "done" && i.resultBlob);
     if (done.length === 0) {
@@ -511,6 +534,21 @@ export default function CuttingPlusTab({
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {totals.done > 0 && onSendToCuttingPlusPlus && (
+                <Button
+                  size="sm"
+                  onClick={sendDoneToCuttingPlusPlus}
+                  className="gap-2 bg-emerald-500 hover:bg-emerald-600 text-white"
+                  data-testid="button-load-to-cutting-plus-plus"
+                  title={`Send ${totals.done} done clip${totals.done === 1 ? "" : "s"} to Cutting ++`}
+                >
+                  <Upload className="h-4 w-4" />
+                  Load
+                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-white/20 px-1.5 text-[10px] font-semibold">
+                    {totals.done}
+                  </span>
+                </Button>
+              )}
               {totals.done > 0 && (
                 <Button
                   variant="outline"
