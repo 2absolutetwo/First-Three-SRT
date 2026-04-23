@@ -207,10 +207,11 @@ export default function App() {
           </div>
 
           <nav className="flex gap-0 -mb-px -mx-4 px-2 flex-wrap justify-center">
-            {TABS.map((tab) => (
+            {TABS.map((tab, idx) => (
               <button
                 key={tab.id}
                 onClick={() => handleSelectTab(tab.id)}
+                style={[3, 4, 6].includes(idx) ? { marginLeft: "1.5rem" } : undefined}
                 className={`flex items-center gap-1 px-2 py-2.5 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap shrink-0 ${
                   activeTab === tab.id
                     ? "border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400"
