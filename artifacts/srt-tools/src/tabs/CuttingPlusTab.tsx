@@ -561,30 +561,6 @@ export default function CuttingPlusTab({
                   Download all (.zip)
                 </Button>
               )}
-              <Button
-                variant={pendingSplitterFiles.length > 0 ? "default" : "outline"}
-                size="sm"
-                onClick={onLoadClick}
-                className={
-                  pendingSplitterFiles.length > 0
-                    ? "gap-2 bg-emerald-500 hover:bg-emerald-600 text-white"
-                    : "gap-2"
-                }
-                data-testid="button-load"
-                title={
-                  pendingSplitterFiles.length > 0
-                    ? `Load ${pendingSplitterFiles.length} clip${pendingSplitterFiles.length === 1 ? "" : "s"} from Video Spliter`
-                    : "Load video files"
-                }
-              >
-                <Upload className="h-4 w-4" />
-                Load
-                {pendingSplitterFiles.length > 0 && (
-                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-white/20 px-1.5 text-[10px] font-semibold">
-                    {pendingSplitterFiles.length}
-                  </span>
-                )}
-              </Button>
               {items.length > 0 && (
                 <Button
                   variant="outline"
