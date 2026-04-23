@@ -399,11 +399,13 @@ function Home({
   incomingSrtFilename,
   incomingSrtKey,
   onSendToCutting,
+  onOutputsChange,
 }: {
   incomingSrt?: string;
   incomingSrtFilename?: string;
   incomingSrtKey?: number;
   onSendToCutting?: (files: File[]) => void;
+  onOutputsChange?: (files: File[]) => void;
 }) {
   const { toast } = useToast();
 
@@ -854,6 +856,27 @@ function Home({
 
   const canRun = !!videoFile && !!srtFile && !uploading && !job;
 
+  // Notify parent of currently-available output files (done clips) so other
+  // tabs (e.g. Cutting +) can pull them in on demand.
+  useEffect(() => {
+    if (!onOutputsChange) return;
+    if (!job || !status) {
+      onOutputsChange([]);
+      return;
+    }
+    const files: File[] = [];
+    for (const c of job.clips) {
+      const st = status.clips.find((s) => s.index === c.index);
+      if (st?.status !== "done") continue;
+      const blob = clipBlobsRef.current.get(c.index);
+      if (!blob) continue;
+      const type = blob.type || "video/mp4";
+      files.push(new File([blob], c.filename, { type }));
+    }
+    onOutputsChange(files);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status?.done, status?.errors, status?.finished, job?.total, onOutputsChange]);
+
   // Build merged view: clip metadata + live status
   const statusByIndex = new Map<number, ClipStatus>(
     (status?.clips ?? []).map((c) => [c.index, c]),
@@ -1242,11 +1265,13 @@ function App({
   incomingSrtFilename,
   incomingSrtKey,
   onSendToCutting,
+  onOutputsChange,
 }: {
   incomingSrt?: string;
   incomingSrtFilename?: string;
   incomingSrtKey?: number;
   onSendToCutting?: (files: File[]) => void;
+  onOutputsChange?: (files: File[]) => void;
 } = {}) {
   return (
     <QueryClientProvider client={queryClient}>
@@ -1256,6 +1281,7 @@ function App({
           incomingSrtFilename={incomingSrtFilename}
           incomingSrtKey={incomingSrtKey}
           onSendToCutting={onSendToCutting}
+          onOutputsChange={onOutputsChange}
         />
         <Toaster />
       </TooltipProvider>

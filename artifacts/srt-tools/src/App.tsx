@@ -108,6 +108,7 @@ export default function App() {
   const [noteIncomingName, setNoteIncomingName] = useState("");
   const [noteIncomingKey, setNoteIncomingKey] = useState(0);
   const [cuttingIncomingAudio, setCuttingIncomingAudio] = useState<{ files: File[]; key: number }>({ files: [], key: 0 });
+  const [cuttingPlusIncomingVideos, setCuttingPlusIncomingVideos] = useState<{ files: File[]; key: number }>({ files: [], key: 0 });
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const saved = localStorage.getItem("srt-tools-theme");
@@ -278,12 +279,15 @@ export default function App() {
             setCuttingIncomingAudio({ files, key: Date.now() });
             handleSelectTab("cutting");
           }}
+          onOutputsChange={(files) => {
+            setCuttingPlusIncomingVideos({ files, key: Date.now() });
+          }}
         />
       </div>
 
       {/* Cutting + — full width, hidden when inactive */}
       <div style={{ display: activeTab === "cuttingPlus" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
-        <CuttingPlusTab />
+        <CuttingPlusTab incomingVideoFiles={cuttingPlusIncomingVideos} />
       </div>
 
       {/* Cutting ++ — full width, hidden when inactive */}

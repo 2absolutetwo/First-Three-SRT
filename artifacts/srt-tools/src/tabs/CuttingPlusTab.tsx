@@ -66,7 +66,16 @@ function uid() {
   return Math.random().toString(36).slice(2, 10);
 }
 
-export default function CuttingPlusTab() {
+interface IncomingVideoFiles {
+  files: File[];
+  key: number;
+}
+
+export default function CuttingPlusTab({
+  incomingVideoFiles,
+}: {
+  incomingVideoFiles?: IncomingVideoFiles;
+} = {}) {
   const { toast } = useToast();
   const [items, setItems] = useState<VideoItem[]>([]);
   const [cutMs, setCutMs] = useState<number>(1000);
@@ -161,6 +170,28 @@ export default function CuttingPlusTab() {
   );
 
   const onPickFiles = () => fileInputRef.current?.click();
+
+  const lastConsumedKeyRef = useRef<number>(0);
+  const pendingSplitterFiles = incomingVideoFiles?.files ?? [];
+  const pendingSplitterKey = incomingVideoFiles?.key ?? 0;
+
+  const onLoadClick = () => {
+    if (pendingSplitterFiles.length > 0) {
+      const existingNames = new Set(items.map((i) => i.file.name));
+      const fresh = pendingSplitterFiles.filter(
+        (f) => !existingNames.has(f.name),
+      );
+      if (fresh.length > 0) {
+        void addFiles(fresh);
+        lastConsumedKeyRef.current = pendingSplitterKey;
+        toast({
+          title: `Loaded ${fresh.length} clip${fresh.length === 1 ? "" : "s"} from Video Spliter`,
+        });
+        return;
+      }
+    }
+    onPickFiles();
+  };
 
   const removeItem = (id: string) => {
     setItems((prev) => {
@@ -468,14 +499,28 @@ export default function CuttingPlusTab() {
                 </Button>
               )}
               <Button
-                variant="outline"
+                variant={pendingSplitterFiles.length > 0 ? "default" : "outline"}
                 size="sm"
-                onClick={onPickFiles}
-                className="gap-2"
+                onClick={onLoadClick}
+                className={
+                  pendingSplitterFiles.length > 0
+                    ? "gap-2 bg-emerald-500 hover:bg-emerald-600 text-white"
+                    : "gap-2"
+                }
                 data-testid="button-load"
+                title={
+                  pendingSplitterFiles.length > 0
+                    ? `Load ${pendingSplitterFiles.length} clip${pendingSplitterFiles.length === 1 ? "" : "s"} from Video Spliter`
+                    : "Load video files"
+                }
               >
                 <Upload className="h-4 w-4" />
                 Load
+                {pendingSplitterFiles.length > 0 && (
+                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-white/20 px-1.5 text-[10px] font-semibold">
+                    {pendingSplitterFiles.length}
+                  </span>
+                )}
               </Button>
               {items.length > 0 && (
                 <Button
