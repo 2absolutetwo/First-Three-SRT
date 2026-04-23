@@ -19,6 +19,9 @@ import {
   Pause,
   Sparkles,
   X,
+  FolderInput,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -296,7 +299,7 @@ function UploadTile({
   );
 }
 
-function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number }) {
+function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCutting }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number; onSendToCutting?: (files: File[]) => void }) {
   const { toast } = useToast();
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -310,6 +313,9 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSr
   const [job, setJob] = useState<JobInit | null>(null);
   const [status, setStatus] = useState<JobStatus | null>(null);
   const [previewClip, setPreviewClip] = useState<ClipMeta | null>(null);
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [loading, setLoading] = useState(false);
+  const [loadPct, setLoadPct] = useState(0);
 
   const apiBase = `${import.meta.env.BASE_URL}api`.replace(/\/+$/, "");
   const lastIncomingSrtKey = useRef<number | undefined>(undefined);
@@ -442,6 +448,62 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSr
     setSrtFile(null);
     setSrtPreview(null);
     setUploadPct(0);
+    setSelected(new Set());
+    setLoadPct(0);
+  }
+
+  function toggleSelect(idx: number) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(idx)) next.delete(idx);
+      else next.add(idx);
+      return next;
+    });
+  }
+
+  async function handleLoadToCutting() {
+    if (!job || !onSendToCutting) return;
+    const doneClips = job.clips.filter(
+      (c) => statusByIndex.get(c.index)?.status === "done",
+    );
+    const targetClips =
+      selected.size > 0
+        ? doneClips.filter((c) => selected.has(c.index))
+        : doneClips;
+    if (targetClips.length === 0) {
+      toast({
+        title: "No clips ready",
+        description: "Wait for clips to finish, then try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setLoading(true);
+    setLoadPct(0);
+    try {
+      const files: File[] = [];
+      for (let i = 0; i < targetClips.length; i++) {
+        const clip = targetClips[i]!;
+        const r = await fetch(`${apiBase}/segment/${job.jobId}/clip/${clip.index}`);
+        if (!r.ok) throw new Error(`Clip #${clip.index}: HTTP ${r.status}`);
+        const blob = await r.blob();
+        const type = blob.type || "video/mp4";
+        files.push(new File([blob], clip.filename, { type }));
+        setLoadPct(Math.round(((i + 1) / targetClips.length) * 100));
+      }
+      onSendToCutting(files);
+      toast({
+        title: `Loaded ${files.length} clip${files.length === 1 ? "" : "s"} to Cutting++`,
+      });
+    } catch (err) {
+      toast({
+        title: "Load failed",
+        description: err instanceof Error ? err.message : String(err),
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   }
 
   const canRun = !!videoFile && !!srtFile && !uploading && !job;
@@ -504,6 +566,31 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSr
                 <span className="text-slate-300 dark:text-slate-700">·</span>
                 <span>{formatDuration(srtPreview.totalSeconds)}</span>
               </div>
+            )}
+            {job && doneCount > 0 && onSendToCutting && (
+              <button
+                type="button"
+                onClick={handleLoadToCutting}
+                disabled={loading}
+                title={
+                  selected.size > 0
+                    ? `Load ${selected.size} selected clip${selected.size === 1 ? "" : "s"} to Cutting++`
+                    : "Load all done clips to Cutting++"
+                }
+                className="inline-flex items-center gap-1.5 px-3 h-7 rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold tracking-wider uppercase shadow-md transition-all disabled:opacity-60"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    {loadPct}%
+                  </>
+                ) : (
+                  <>
+                    <FolderInput className="w-3.5 h-3.5" />
+                    Load{selected.size > 0 ? ` (${selected.size})` : ""}
+                  </>
+                )}
+              </button>
             )}
             {job && doneCount > 0 && (
               <a
@@ -609,6 +696,42 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSr
         {/* Clip grid */}
         {job && (
           <div className="mt-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50 backdrop-blur-md p-4 shadow-sm">
+            {onSendToCutting && doneCount > 0 && (
+              <div className="mb-3 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                <span>
+                  {selected.size > 0 ? (
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      {selected.size} selected
+                    </span>
+                  ) : (
+                    <>Tip: tick clips to load only those, or leave empty to load all done</>
+                  )}
+                </span>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const doneIdx = job.clips
+                        .filter((c) => statusByIndex.get(c.index)?.status === "done")
+                        .map((c) => c.index);
+                      setSelected(new Set(doneIdx));
+                    }}
+                    className="px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+                  >
+                    Select all done
+                  </button>
+                  {selected.size > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setSelected(new Set())}
+                      className="px-2 py-1 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
             <div
               className="grid gap-2 max-h-[68vh] overflow-y-auto pr-1"
               style={{
@@ -658,12 +781,36 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSr
                   );
                 })();
 
+                const isSelected = selected.has(clip.index);
                 return (
                   <div
                     key={clip.index}
                     title={clip.text}
-                    className={`group relative flex flex-col rounded-xl overflow-hidden bg-white dark:bg-slate-900 ${ring} hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-700 transition-all`}
+                    className={`group relative flex flex-col rounded-xl overflow-hidden bg-white dark:bg-slate-900 ${ring} ${
+                      isSelected ? "ring-2 ring-emerald-500 dark:ring-emerald-400" : ""
+                    } hover:ring-2 hover:ring-indigo-300 dark:hover:ring-indigo-700 transition-all`}
                   >
+                    {isDone && onSendToCutting && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleSelect(clip.index);
+                        }}
+                        className={`absolute top-1 right-8 z-10 w-5 h-5 inline-flex items-center justify-center rounded-md backdrop-blur ${
+                          isSelected
+                            ? "bg-emerald-500 text-white"
+                            : "bg-white/80 dark:bg-slate-900/70 text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100"
+                        } transition-opacity`}
+                        aria-label={isSelected ? "Deselect" : "Select"}
+                      >
+                        {isSelected ? (
+                          <CheckSquare className="w-3.5 h-3.5" />
+                        ) : (
+                          <Square className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    )}
                     <button
                       type="button"
                       disabled={!isDone}
@@ -744,11 +891,11 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSr
   );
 }
 
-function App({ incomingSrt, incomingSrtFilename, incomingSrtKey }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number } = {}) {
+function App({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCutting }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number; onSendToCutting?: (files: File[]) => void } = {}) {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Home incomingSrt={incomingSrt} incomingSrtFilename={incomingSrtFilename} incomingSrtKey={incomingSrtKey} />
+        <Home incomingSrt={incomingSrt} incomingSrtFilename={incomingSrtFilename} incomingSrtKey={incomingSrtKey} onSendToCutting={onSendToCutting} />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

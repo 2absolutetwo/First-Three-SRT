@@ -278,6 +278,10 @@ export default function App() {
           incomingSrt={videoIncomingSrt}
           incomingSrtFilename={videoIncomingSrtFilename}
           incomingSrtKey={videoIncomingSrtKey}
+          onSendToCutting={(files) => {
+            setCuttingIncomingAudio({ files, key: Date.now() });
+            handleSelectTab("cutting");
+          }}
         />
       </div>
 
