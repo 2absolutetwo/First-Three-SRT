@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { type Subtitle, formatSrt } from "@/lib/srt";
 import SrtEditorTab from "@/tabs/SrtEditorTab";
-import SrtConverterTab from "@/tabs/SrtConverterTab";
 import SrtMakerTab from "@/tabs/SrtMakerTab";
 import SrtNoteTab from "@/tabs/SrtNoteTab";
 import SrtTimeSplitterTab from "@/tabs/SrtTimeSplitterTab";
@@ -10,7 +9,7 @@ import VoiceTrimmerTab from "@/tabs/VoiceTrimmerTab";
 import VideoSplitterTab from "@/tabs/VideoSplitterTab";
 import CuttingPlusPlusTab from "@/tabs/CuttingPlusPlusTab";
 
-type Tab = "editor" | "converter" | "maker" | "note" | "splitter" | "merger" | "audio" | "video" | "cutting";
+type Tab = "editor" | "maker" | "note" | "splitter" | "merger" | "audio" | "video" | "cutting";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -28,15 +27,6 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-  {
-    id: "converter",
-    label: "SRT Line",
-    icon: (
-      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
       </svg>
     ),
   },
@@ -150,10 +140,6 @@ export default function App() {
     handleSelectTab("editor");
     await sleep(200);
     window.dispatchEvent(new CustomEvent("srt-tools:editor-convert"));
-    await sleep(800);
-    handleSelectTab("converter");
-    await sleep(200);
-    window.dispatchEvent(new CustomEvent("srt-tools:converter-convert"));
     await sleep(800);
     handleSelectTab("splitter");
     await sleep(1000);
@@ -301,13 +287,7 @@ export default function App() {
             filename={filename}
             setSubtitles={setSubtitles}
             setFilename={setFilename}
-            onNext={() => handleSelectTab("converter")}
-          />
-        )}
-        {activeTab === "converter" && (
-          <SrtConverterTab
-            sharedSubtitles={subtitles}
-            sharedFilename={filename}
+            onNext={() => handleSelectTab("maker")}
           />
         )}
       </main>
