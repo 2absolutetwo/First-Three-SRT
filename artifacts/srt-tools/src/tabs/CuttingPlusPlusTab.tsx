@@ -672,15 +672,15 @@ function VideoCutterApp({ incomingAudioFiles }: { incomingAudioFiles?: IncomingA
                 {audioPoolCount} <span className="text-[10px] font-medium text-slate-500">files</span>
               </span>
             </div>
-            <div className={`flex items-center gap-2 rounded-lg border border-pink-200 bg-pink-50/60 px-2.5 py-1 transition-opacity ${videoPoolCount === 0 ? "opacity-20" : ""}`}>
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-pink-500 text-white">
-                <Film className="h-3 w-3" />
+            <div className={`flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50/60 px-2.5 py-1 transition-opacity ${activeCount === 0 ? "opacity-20" : ""}`}>
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500 text-white">
+                <Activity className="h-3 w-3" />
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-pink-700">
-                Video Pool
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-700">
+                Active
               </span>
-              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-video-count">
-                {videoPoolCount} <span className="text-[10px] font-medium text-slate-500">files</span>
+              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-active-count">
+                {activeCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
               </span>
             </div>
             <div className={`flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 transition-opacity ${autoCutCount === 0 ? "opacity-20" : ""}`}>
@@ -694,26 +694,26 @@ function VideoCutterApp({ incomingAudioFiles }: { incomingAudioFiles?: IncomingA
                 {autoCutCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
               </span>
             </div>
-            <div className={`flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/60 px-2.5 py-1 transition-opacity ${bothEndsCount === 0 ? "opacity-20" : ""}`}>
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500 text-white">
-                <Crop className="h-3 w-3" />
+            <div className={`flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/60 px-2.5 py-1 transition-opacity ${errorCount === 0 ? "opacity-20" : ""}`}>
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-rose-500 text-white">
+                <AlertCircle className="h-3 w-3" />
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">
-                Both Ends
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-700">
+                Error
               </span>
-              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-bothends-count">
-                {bothEndsCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
+              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-error-count">
+                {errorCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
               </span>
             </div>
-            <div className={`flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50/60 px-2.5 py-1 transition-opacity ${activeCount === 0 ? "opacity-20" : ""}`}>
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-500 text-white">
-                <Activity className="h-3 w-3" />
+            <div className={`flex items-center gap-2 rounded-lg border border-pink-200 bg-pink-50/60 px-2.5 py-1 transition-opacity ${videoPoolCount === 0 ? "opacity-20" : ""}`}>
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-pink-500 text-white">
+                <Film className="h-3 w-3" />
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-700">
-                Active
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-pink-700">
+                Video Pool
               </span>
-              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-active-count">
-                {activeCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
+              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-video-count">
+                {videoPoolCount} <span className="text-[10px] font-medium text-slate-500">files</span>
               </span>
             </div>
             <div className={`flex items-center gap-2 rounded-lg border border-green-200 bg-green-50/60 px-2.5 py-1 transition-opacity ${completeCount === 0 ? "opacity-20" : ""}`}>
@@ -727,15 +727,15 @@ function VideoCutterApp({ incomingAudioFiles }: { incomingAudioFiles?: IncomingA
                 {completeCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
               </span>
             </div>
-            <div className={`flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50/60 px-2.5 py-1 transition-opacity ${errorCount === 0 ? "opacity-20" : ""}`}>
-              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-rose-500 text-white">
-                <AlertCircle className="h-3 w-3" />
+            <div className={`flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/60 px-2.5 py-1 transition-opacity ${bothEndsCount === 0 ? "opacity-20" : ""}`}>
+              <span className="flex h-6 w-6 items-center justify-center rounded-md bg-amber-500 text-white">
+                <Crop className="h-3 w-3" />
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-rose-700">
-                Error
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-700">
+                Both Ends
               </span>
-              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-error-count">
-                {errorCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
+              <span className="ml-auto text-sm font-bold text-slate-800" data-testid="info-bothends-count">
+                {bothEndsCount} <span className="text-[10px] font-medium text-slate-500">cards</span>
               </span>
             </div>
             <div className={`flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50/60 px-2.5 py-1 transition-opacity ${downloadCount === 0 ? "opacity-20" : ""}`}>
