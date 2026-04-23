@@ -8,8 +8,9 @@ import SrtTimeSplitterTab from "@/tabs/SrtTimeSplitterTab";
 import SrtMergerTab from "@/tabs/SrtMergerTab";
 import VoiceTrimmerTab from "@/tabs/VoiceTrimmerTab";
 import VideoSplitterTab from "@/tabs/VideoSplitterTab";
+import CuttingPlusPlusTab from "@/tabs/CuttingPlusPlusTab";
 
-type Tab = "editor" | "converter" | "maker" | "note" | "splitter" | "merger" | "audio" | "video";
+type Tab = "editor" | "converter" | "maker" | "note" | "splitter" | "merger" | "audio" | "video" | "cutting";
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   {
@@ -81,6 +82,15 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
     icon: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      </svg>
+    ),
+  },
+  {
+    id: "cutting",
+    label: "Cutting ++",
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
       </svg>
     ),
   },
@@ -265,9 +275,14 @@ export default function App() {
         />
       </div>
 
+      {/* Cutting ++ — full width, hidden when inactive */}
+      <div style={{ display: activeTab === "cutting" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
+        <CuttingPlusPlusTab />
+      </div>
+
       {/* Other tabs */}
       <main
-        style={{ display: activeTab === "maker" || activeTab === "note" || activeTab === "splitter" || activeTab === "merger" || activeTab === "audio" || activeTab === "video" ? "none" : "block" }}
+        style={{ display: activeTab === "maker" || activeTab === "note" || activeTab === "splitter" || activeTab === "merger" || activeTab === "audio" || activeTab === "video" || activeTab === "cutting" ? "none" : "block" }}
         className="max-w-5xl mx-auto px-4 py-5 flex-1 overflow-y-auto w-full"
       >
         {activeTab === "editor" && (
