@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { type Subtitle, formatSrt } from "@/lib/srt";
 import SrtEditorTab from "@/tabs/SrtEditorTab";
 import SrtMakerTab from "@/tabs/SrtMakerTab";
@@ -124,6 +124,17 @@ export default function App() {
   }, [theme]);
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
+
+  const handleVideoSplitterOutputs = useCallback((files: File[]) => {
+    setCuttingPlusIncomingVideos((prev) => {
+      const sameLength = prev.files.length === files.length;
+      const sameNames =
+        sameLength &&
+        prev.files.every((f, i) => f.name === files[i]?.name && f.size === files[i]?.size);
+      if (sameNames) return prev;
+      return { files, key: Date.now() };
+    });
+  }, []);
 
   const hasFile = subtitles.length > 0;
 
@@ -279,9 +290,7 @@ export default function App() {
             setCuttingIncomingAudio({ files, key: Date.now() });
             handleSelectTab("cutting");
           }}
-          onOutputsChange={(files) => {
-            setCuttingPlusIncomingVideos({ files, key: Date.now() });
-          }}
+          onOutputsChange={handleVideoSplitterOutputs}
         />
       </div>
 
