@@ -150,7 +150,9 @@ export type CutterCardHandle = {
   loadVideo: (file: File) => void;
 };
 
-function VideoCutterApp() {
+type IncomingAudioFiles = { files: File[]; key: number };
+
+function VideoCutterApp({ incomingAudioFiles }: { incomingAudioFiles?: IncomingAudioFiles }) {
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const [ffmpegReady, setFfmpegReady] = useState(false);
   const [ffmpegLoading, setFfmpegLoading] = useState(true);
@@ -238,6 +240,15 @@ function VideoCutterApp() {
   const removePoolItem = (id: string) => {
     setPool((p) => p.filter((x) => x.id !== id));
   };
+
+  const lastIncomingKeyRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (!incomingAudioFiles) return;
+    if (incomingAudioFiles.key === lastIncomingKeyRef.current) return;
+    if (!incomingAudioFiles.files || incomingAudioFiles.files.length === 0) return;
+    lastIncomingKeyRef.current = incomingAudioFiles.key;
+    void addPoolFiles(incomingAudioFiles.files);
+  }, [incomingAudioFiles]);
 
   const clearPool = () => setPool([]);
 
@@ -1697,10 +1708,14 @@ function PlayablePreview({
   );
 }
 
-export default function CuttingPlusPlusTab() {
+export default function CuttingPlusPlusTab({
+  incomingAudioFiles,
+}: {
+  incomingAudioFiles?: { files: File[]; key: number };
+} = {}) {
   return (
     <TooltipProvider>
-      <VideoCutterApp />
+      <VideoCutterApp incomingAudioFiles={incomingAudioFiles} />
       <Toaster />
     </TooltipProvider>
   );

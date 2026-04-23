@@ -3,13 +3,18 @@ import { useAudioAnalysis } from "@/hooks/useAudioAnalysis";
 import UploadBox from "@/tabs/trimmer/UploadBox";
 import AudioCard from "@/tabs/trimmer/AudioCard";
 import DownloadPanel from "@/tabs/trimmer/DownloadPanel";
-import { Scissors, Trash2 } from "lucide-react";
+import { Scissors, Trash2, FolderInput } from "lucide-react";
 
 type SplitStage = "idle" | "preview" | "trimming" | "done";
 
-export default function VoiceTrimmerTab() {
+interface VoiceTrimmerTabProps {
+  onSendToCutting?: (files: File[]) => void;
+}
+
+export default function VoiceTrimmerTab({ onSendToCutting }: VoiceTrimmerTabProps = {}) {
   const { audioFiles, addFiles, removeFile, trimAllFiles, resetTrim } = useAudioAnalysis();
   const [splitStage, setSplitStage] = useState<SplitStage>("idle");
+  const [loaded, setLoaded] = useState(false);
 
   const readyCount = audioFiles.filter((f) => f.status === "ready" && !f.isTrimmed).length;
   const trimmedCount = audioFiles.filter((f) => f.isTrimmed).length;
@@ -27,7 +32,20 @@ export default function VoiceTrimmerTab() {
   const handleClear = () => {
     resetTrim();
     setSplitStage("idle");
+    setLoaded(false);
     audioFiles.forEach((f) => removeFile(f.id));
+  };
+
+  const handleLoadToCutting = () => {
+    if (!onSendToCutting) return;
+    const trimmed = audioFiles.filter((f) => f.isTrimmed && f.trimmedBlob);
+    if (trimmed.length === 0) return;
+    const files: File[] = trimmed.map((f) => {
+      const baseName = f.name.replace(/\.[^.]+$/, "") + "_trimmed.wav";
+      return new File([f.trimmedBlob as Blob], baseName, { type: "audio/wav" });
+    });
+    onSendToCutting(files);
+    setLoaded(true);
   };
 
   const splitLabel =
@@ -65,6 +83,33 @@ export default function VoiceTrimmerTab() {
           )}
         </div>
         <div className="flex items-center gap-2">
+          {splitStage === "done" && trimmedCount > 0 && onSendToCutting && (
+            <button
+              onClick={handleLoadToCutting}
+              title="Send all trimmed audios to Cutting++ Audio Pool"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all"
+              style={{
+                background: loaded ? "hsl(142,70%,40%)" : "hsl(220,90%,56%)",
+                color: "white",
+                boxShadow: loaded
+                  ? "0 1px 4px rgba(34,197,94,0.30)"
+                  : "0 1px 4px rgba(37,99,235,0.30)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = loaded
+                  ? "hsl(142,70%,34%)"
+                  : "hsl(220,90%,48%)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = loaded
+                  ? "hsl(142,70%,40%)"
+                  : "hsl(220,90%,56%)";
+              }}
+            >
+              <FolderInput className="w-3 h-3" />
+              {loaded ? "Loaded ✓" : "Load to Cutting++"}
+            </button>
+          )}
           <button
             onClick={handleClear}
             disabled={audioFiles.length === 0}

@@ -107,6 +107,7 @@ export default function App() {
   const [noteIncomingText, setNoteIncomingText] = useState("");
   const [noteIncomingName, setNoteIncomingName] = useState("");
   const [noteIncomingKey, setNoteIncomingKey] = useState(0);
+  const [cuttingIncomingAudio, setCuttingIncomingAudio] = useState<{ files: File[]; key: number }>({ files: [], key: 0 });
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const saved = localStorage.getItem("srt-tools-theme");
@@ -263,7 +264,12 @@ export default function App() {
 
       {/* Audio Spliter — full width, hidden when inactive */}
       <div style={{ display: activeTab === "audio" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
-        <VoiceTrimmerTab />
+        <VoiceTrimmerTab
+          onSendToCutting={(files) => {
+            setCuttingIncomingAudio({ files, key: Date.now() });
+            handleSelectTab("cutting");
+          }}
+        />
       </div>
 
       {/* Video Spliter — full width, hidden when inactive */}
@@ -277,7 +283,7 @@ export default function App() {
 
       {/* Cutting ++ — full width, hidden when inactive */}
       <div style={{ display: activeTab === "cutting" ? "flex" : "none" }} className="flex-col flex-1 overflow-y-auto">
-        <CuttingPlusPlusTab />
+        <CuttingPlusPlusTab incomingAudioFiles={cuttingIncomingAudio} />
       </div>
 
       {/* Other tabs */}
