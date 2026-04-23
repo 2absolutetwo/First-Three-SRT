@@ -6,6 +6,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { FFmpeg } from "@ffmpeg/ffmpeg";
+import { toBlobURL } from "@ffmpeg/util";
+import JSZip from "jszip";
 import {
   Film,
   FileText,
@@ -16,7 +19,6 @@ import {
   AlertCircle,
   Clock,
   Play,
-  Pause,
   Sparkles,
   X,
   FolderInput,
@@ -25,6 +27,17 @@ import {
 } from "lucide-react";
 
 const queryClient = new QueryClient();
+
+const FFMPEG_BASE_URL = "https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm";
+
+const BATCH_SIZE = 25;
+
+interface SrtCue {
+  index: number;
+  startSec: number;
+  endSec: number;
+  text: string;
+}
 
 interface SrtPreview {
   count: number;
@@ -61,6 +74,88 @@ interface JobStatus {
   errors: number;
   finished: boolean;
   clips: ClipStatus[];
+}
+
+function timestampToSeconds(ts: string): number {
+  const m = ts.trim().match(/^(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})$/);
+  if (!m) throw new Error(`Invalid SRT timestamp: ${ts}`);
+  return (
+    Number(m[1]) * 3600 +
+    Number(m[2]) * 60 +
+    Number(m[3]) +
+    Number(m[4]) / 1000
+  );
+}
+
+function parseSrt(content: string): SrtCue[] {
+  const normalized = content.replace(/\r\n/g, "\n").replace(/^\uFEFF/, "");
+  const blocks = normalized.split(/\n\s*\n/);
+  const cues: SrtCue[] = [];
+
+  for (const rawBlock of blocks) {
+    const block = rawBlock.trim();
+    if (!block) continue;
+    const lines = block.split("\n");
+    let cursor = 0;
+
+    if (lines[cursor] && /^\d+$/.test(lines[cursor]!.trim())) cursor++;
+
+    const timeLine = lines[cursor];
+    if (!timeLine) continue;
+    const tm = timeLine.match(
+      /(\d{1,2}:\d{2}:\d{2}[,.]\d{1,3})\s*-->\s*(\d{1,2}:\d{2}:\d{2}[,.]\d{1,3})/,
+    );
+    if (!tm) continue;
+    cursor++;
+
+    const text = lines.slice(cursor).join("\n").trim();
+    const startSec = timestampToSeconds(tm[1]!);
+    const endSec = timestampToSeconds(tm[2]!);
+    if (endSec <= startSec) continue;
+
+    cues.push({ index: cues.length + 1, startSec, endSec, text });
+  }
+
+  return cues;
+}
+
+function sanitizeForFilename(text: string, max = 40): string {
+  const cleaned = text
+    .replace(/<[^>]*>/g, "")
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/[^\w\s\-]+/g, "")
+    .trim()
+    .slice(0, max)
+    .replace(/\s+/g, "_");
+  return cleaned || "clip";
+}
+
+function buildSrtPreview(cues: SrtCue[]): SrtPreview {
+  const sorted = [...cues].sort((a, b) => a.startSec - b.startSec);
+  const overlaps: { a: number; b: number; overlapSec: number }[] = [];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const cur = sorted[i]!;
+    const nxt = sorted[i + 1]!;
+    if (nxt.startSec < cur.endSec) {
+      overlaps.push({
+        a: cur.index,
+        b: nxt.index,
+        overlapSec: +(cur.endSec - nxt.startSec).toFixed(3),
+      });
+    }
+  }
+  return {
+    count: cues.length,
+    totalSeconds: cues.reduce((s, c) => s + (c.endSec - c.startSec), 0),
+    sample: cues.slice(0, 5).map((c) => ({
+      index: c.index,
+      startSec: c.startSec,
+      endSec: c.endSec,
+      text: c.text,
+    })),
+    overlapCount: overlaps.length,
+    overlaps: overlaps.slice(0, 20),
+  };
 }
 
 function formatBytes(n: number): string {
@@ -299,7 +394,17 @@ function UploadTile({
   );
 }
 
-function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCutting }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number; onSendToCutting?: (files: File[]) => void }) {
+function Home({
+  incomingSrt,
+  incomingSrtFilename,
+  incomingSrtKey,
+  onSendToCutting,
+}: {
+  incomingSrt?: string;
+  incomingSrtFilename?: string;
+  incomingSrtKey?: number;
+  onSendToCutting?: (files: File[]) => void;
+}) {
   const { toast } = useToast();
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -307,6 +412,7 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
   const [srtPreview, setSrtPreview] = useState<SrtPreview | null>(null);
   const [previewing, setPreviewing] = useState(false);
 
+  // "uploading" → repurposed as "loading video into engine"
   const [uploading, setUploading] = useState(false);
   const [uploadPct, setUploadPct] = useState(0);
 
@@ -317,41 +423,78 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
   const [loading, setLoading] = useState(false);
   const [loadPct, setLoadPct] = useState(0);
 
-  const apiBase = `${import.meta.env.BASE_URL}api`.replace(/\/+$/, "");
   const lastIncomingSrtKey = useRef<number | undefined>(undefined);
+  const ffmpegRef = useRef<FFmpeg | null>(null);
+  // index → Blob (browser-side store; replaces server's per-clip files)
+  const clipBlobsRef = useRef<Map<number, Blob>>(new Map());
+  // index → object URL (for download/preview); revoked on reset
+  const clipUrlsRef = useRef<Map<number, string>>(new Map());
 
-  // Poll status while job is active
-  useEffect(() => {
-    if (!job) return;
-    let cancelled = false;
-    let timer: number | null = null;
-
-    const tick = async () => {
+  function revokeAllClipUrls() {
+    for (const url of clipUrlsRef.current.values()) {
       try {
-        const r = await fetch(`${apiBase}/segment/${job.jobId}/status`);
-        if (!r.ok) throw new Error(await r.text());
-        const s: JobStatus = await r.json();
-        if (cancelled) return;
-        setStatus(s);
-        if (!s.finished) {
-          timer = window.setTimeout(tick, 1000);
-        }
-      } catch (err) {
-        if (cancelled) return;
-        toast({
-          title: "Couldn't fetch status",
-          description: err instanceof Error ? err.message : String(err),
-          variant: "destructive",
-        });
+        URL.revokeObjectURL(url);
+      } catch {
+        // ignore
       }
-    };
+    }
+    clipUrlsRef.current.clear();
+    clipBlobsRef.current.clear();
+  }
 
-    void tick();
+  useEffect(() => {
     return () => {
-      cancelled = true;
-      if (timer) clearTimeout(timer);
+      revokeAllClipUrls();
     };
-  }, [job, apiBase, toast]);
+  }, []);
+
+  async function getFFmpeg(): Promise<FFmpeg> {
+    if (ffmpegRef.current) return ffmpegRef.current;
+    const ffmpeg = new FFmpeg();
+    const coreURL = await toBlobURL(
+      `${FFMPEG_BASE_URL}/ffmpeg-core.js`,
+      "text/javascript",
+    );
+    const wasmURL = await toBlobURL(
+      `${FFMPEG_BASE_URL}/ffmpeg-core.wasm`,
+      "application/wasm",
+    );
+    await ffmpeg.load({ coreURL, wasmURL });
+    ffmpegRef.current = ffmpeg;
+    return ffmpeg;
+  }
+
+  // Read a File into Uint8Array with progress callback
+  async function readFileWithProgress(
+    file: File,
+    onProgress: (pct: number) => void,
+  ): Promise<Uint8Array> {
+    const total = file.size;
+    const reader = file.stream().getReader();
+    const chunks: Uint8Array[] = [];
+    let loaded = 0;
+    onProgress(0);
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      if (value) {
+        chunks.push(value);
+        loaded += value.byteLength;
+        if (total > 0) {
+          onProgress(Math.min(99, Math.round((loaded / total) * 100)));
+        }
+      }
+    }
+    const out = new Uint8Array(loaded);
+    let offset = 0;
+    for (const c of chunks) {
+      out.set(c, offset);
+      offset += c.byteLength;
+    }
+    onProgress(100);
+    return out;
+  }
 
   useEffect(() => {
     if (!incomingSrt || !incomingSrt.trim()) return;
@@ -369,14 +512,9 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
     if (!f) return;
     setPreviewing(true);
     try {
-      const fd = new FormData();
-      fd.append("srt", f);
-      const r = await fetch(`${apiBase}/srt-preview`, {
-        method: "POST",
-        body: fd,
-      });
-      if (!r.ok) throw new Error(await r.text());
-      setSrtPreview(await r.json());
+      const text = await f.text();
+      const cues = parseSrt(text);
+      setSrtPreview(buildSrtPreview(cues));
     } catch (err) {
       toast({
         title: "Couldn't read SRT",
@@ -388,60 +526,233 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
     }
   }
 
-  function startSegment() {
+  async function startSegment() {
     if (!videoFile || !srtFile) return;
-    setUploading(true);
-    setUploadPct(0);
+
+    revokeAllClipUrls();
     setJob(null);
     setStatus(null);
+    setSelected(new Set());
+    setUploading(true);
+    setUploadPct(0);
 
-    const fd = new FormData();
-    fd.append("video", videoFile);
-    fd.append("srt", srtFile);
-
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", `${apiBase}/segment`);
-    xhr.responseType = "json";
-
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        setUploadPct(Math.round((e.loaded / e.total) * 100));
-      }
-    };
-
-    xhr.onload = () => {
-      setUploading(false);
-      if (xhr.status >= 200 && xhr.status < 300) {
-        const data = xhr.response as JobInit;
-        setJob(data);
-        toast({
-          title: "Cutting started",
-          description: `${data.total} clips, 6 in parallel`,
-        });
-      } else {
-        const errMsg =
-          (xhr.response as { error?: string })?.error || `HTTP ${xhr.status}`;
-        toast({
-          title: "Upload failed",
-          description: errMsg,
-          variant: "destructive",
-        });
-      }
-    };
-
-    xhr.onerror = () => {
+    let cues: SrtCue[];
+    try {
+      const srtText = await srtFile.text();
+      cues = parseSrt(srtText);
+    } catch (err) {
       setUploading(false);
       toast({
-        title: "Upload failed",
-        description: "Network error",
+        title: "Couldn't parse SRT",
+        description: err instanceof Error ? err.message : String(err),
         variant: "destructive",
+      });
+      return;
+    }
+
+    if (cues.length === 0) {
+      setUploading(false);
+      toast({
+        title: "No subtitle cues found in SRT.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const ext = (() => {
+      const m = videoFile.name.match(/\.[A-Za-z0-9]+$/);
+      return m ? m[0] : ".mp4";
+    })();
+    const baseName = videoFile.name.replace(/\.[^.]+$/, "") || "video";
+    const padWidth = String(cues.length).length;
+
+    const clipMetas: ClipMeta[] = cues.map((c) => ({
+      index: c.index,
+      text: c.text,
+      startSec: c.startSec,
+      endSec: c.endSec,
+      filename: `${String(c.index).padStart(padWidth, "0")}_${sanitizeForFilename(c.text)}${ext}`,
+    }));
+
+    const initialClipStatuses: ClipStatus[] = cues.map((c) => ({
+      index: c.index,
+      status: "pending",
+    }));
+
+    // Load ffmpeg + video into virtual FS (this replaces server upload)
+    let ffmpeg: FFmpeg;
+    let videoBytes: Uint8Array;
+    const inputName = `input${ext}`;
+    try {
+      ffmpeg = await getFFmpeg();
+      videoBytes = await readFileWithProgress(videoFile, setUploadPct);
+      await ffmpeg.writeFile(inputName, videoBytes);
+    } catch (err) {
+      setUploading(false);
+      toast({
+        title: "Couldn't load video",
+        description: err instanceof Error ? err.message : String(err),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploading(false);
+
+    // Initialize job + status
+    const jobId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `job-${Date.now()}`;
+    const newJob: JobInit = {
+      jobId,
+      baseName,
+      total: clipMetas.length,
+      clips: clipMetas,
+    };
+    setJob(newJob);
+    setStatus({
+      total: clipMetas.length,
+      done: 0,
+      errors: 0,
+      finished: false,
+      clips: initialClipStatuses,
+    });
+
+    toast({
+      title: "Cutting started",
+      description: `${clipMetas.length} clips, processing in browser`,
+    });
+
+    // Helper to mutate status
+    const updateStatus = (mut: (clips: ClipStatus[]) => ClipStatus[]) => {
+      setStatus((prev) => {
+        if (!prev) return prev;
+        const nextClips = mut(prev.clips.map((c) => ({ ...c })));
+        const done = nextClips.filter((c) => c.status === "done").length;
+        const errors = nextClips.filter((c) => c.status === "error").length;
+        return { ...prev, clips: nextClips, done, errors };
       });
     };
 
-    xhr.send(fd);
+    // Sort clips by startSec for cheap forward demux
+    const sortedMetas = [...clipMetas].sort(
+      (a, b) => a.startSec - b.startSec,
+    );
+
+    const batches: ClipMeta[][] = [];
+    for (let i = 0; i < sortedMetas.length; i += BATCH_SIZE) {
+      batches.push(sortedMetas.slice(i, i + BATCH_SIZE));
+    }
+
+    // Output mime guess from extension
+    const mimeForExt = (() => {
+      const e = ext.toLowerCase();
+      if (e === ".mp4" || e === ".m4v") return "video/mp4";
+      if (e === ".webm") return "video/webm";
+      if (e === ".mkv") return "video/x-matroska";
+      if (e === ".mov") return "video/quicktime";
+      return "video/mp4";
+    })();
+
+    try {
+      for (const batch of batches) {
+        // Mark batch running
+        const runningSet = new Set(batch.map((c) => c.index));
+        updateStatus((clips) =>
+          clips.map((c) =>
+            runningSet.has(c.index) ? { ...c, status: "running" } : c,
+          ),
+        );
+
+        // Build args: one input, many outputs (stream-copy, no re-encode)
+        const outNames = batch.map(
+          (c) => `out_${String(c.index).padStart(padWidth, "0")}${ext}`,
+        );
+        const args: string[] = [
+          "-y",
+          "-hide_banner",
+          "-loglevel",
+          "error",
+          "-i",
+          inputName,
+        ];
+        batch.forEach((clip, i) => {
+          const duration = clip.endSec - clip.startSec;
+          args.push(
+            "-ss",
+            clip.startSec.toFixed(3),
+            "-t",
+            duration.toFixed(3),
+            "-c",
+            "copy",
+            "-avoid_negative_ts",
+            "make_zero",
+            outNames[i]!,
+          );
+        });
+
+        let batchErr: string | null = null;
+        try {
+          await ffmpeg.exec(args);
+        } catch (err) {
+          batchErr = err instanceof Error ? err.message : String(err);
+        }
+
+        // Read outputs that exist; mark done/error per clip
+        for (let i = 0; i < batch.length; i++) {
+          const clip = batch[i]!;
+          const outName = outNames[i]!;
+          try {
+            const data = await ffmpeg.readFile(outName);
+            const u8 =
+              data instanceof Uint8Array
+                ? data
+                : new TextEncoder().encode(String(data));
+            if (u8.byteLength === 0) {
+              throw new Error("empty output");
+            }
+            const blob = new Blob([u8 as BlobPart], { type: mimeForExt });
+            clipBlobsRef.current.set(clip.index, blob);
+            const url = URL.createObjectURL(blob);
+            clipUrlsRef.current.set(clip.index, url);
+            updateStatus((clips) =>
+              clips.map((c) =>
+                c.index === clip.index ? { ...c, status: "done" } : c,
+              ),
+            );
+            // Free the FS entry
+            try {
+              await ffmpeg.deleteFile(outName);
+            } catch {
+              // ignore
+            }
+          } catch {
+            const msg = batchErr || "Cut failed";
+            updateStatus((clips) =>
+              clips.map((c) =>
+                c.index === clip.index
+                  ? { ...c, status: "error", error: msg }
+                  : c,
+              ),
+            );
+          }
+        }
+      }
+    } finally {
+      // Free input from virtual FS
+      try {
+        await ffmpeg.deleteFile(inputName);
+      } catch {
+        // ignore
+      }
+      // Mark job finished
+      setStatus((prev) => (prev ? { ...prev, finished: true } : prev));
+    }
   }
 
   function reset() {
+    revokeAllClipUrls();
     setJob(null);
     setStatus(null);
     setVideoFile(null);
@@ -484,9 +795,8 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
       const files: File[] = [];
       for (let i = 0; i < targetClips.length; i++) {
         const clip = targetClips[i]!;
-        const r = await fetch(`${apiBase}/segment/${job.jobId}/clip/${clip.index}`);
-        if (!r.ok) throw new Error(`Clip #${clip.index}: HTTP ${r.status}`);
-        const blob = await r.blob();
+        const blob = clipBlobsRef.current.get(clip.index);
+        if (!blob) throw new Error(`Clip #${clip.index}: not available`);
         const type = blob.type || "video/mp4";
         files.push(new File([blob], clip.filename, { type }));
         setLoadPct(Math.round(((i + 1) / targetClips.length) * 100));
@@ -503,6 +813,46 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
       });
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDownloadZip() {
+    if (!job) return;
+    const doneClips = job.clips.filter(
+      (c) => statusByIndex.get(c.index)?.status === "done",
+    );
+    if (doneClips.length === 0) {
+      toast({
+        title: "No clips ready yet.",
+        variant: "destructive",
+      });
+      return;
+    }
+    try {
+      const zip = new JSZip();
+      for (const clip of doneClips) {
+        const blob = clipBlobsRef.current.get(clip.index);
+        if (!blob) continue;
+        zip.file(clip.filename, blob);
+      }
+      const zipBlob = await zip.generateAsync({
+        type: "blob",
+        compression: "STORE",
+      });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${job.baseName || "clips"}.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 30_000);
+    } catch (err) {
+      toast({
+        title: "ZIP failed",
+        description: err instanceof Error ? err.message : String(err),
+        variant: "destructive",
+      });
     }
   }
 
@@ -593,14 +943,14 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
               </button>
             )}
             {job && doneCount > 0 && (
-              <a
-                href={`${apiBase}/segment/${job.jobId}/zip`}
-                download={`${job.baseName || "clips"}.zip`}
+              <button
+                type="button"
+                onClick={handleDownloadZip}
                 className="inline-flex items-center gap-1.5 px-3 h-7 rounded-md bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:from-indigo-700 hover:via-violet-700 hover:to-fuchsia-700 text-white text-xs font-bold tracking-wider uppercase shadow-md transition-all"
               >
                 <Download className="w-3.5 h-3.5" />
                 ZIP
-              </a>
+              </button>
             )}
             {job ? (
               <Button
@@ -620,7 +970,7 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
                 {uploading ? (
                   <>
                     <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
-                    Uploading {uploadPct}%
+                    Loading {uploadPct}%
                   </>
                 ) : (
                   <>
@@ -671,11 +1021,11 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
           />
         </div>
 
-        {/* Upload progress (between tiles and grid) */}
+        {/* Loading progress (between tiles and grid) */}
         {uploading && (
           <div className="mt-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/60 backdrop-blur p-4">
             <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 mb-2">
-              <span>Uploading video & subtitle…</span>
+              <span>Loading video into engine…</span>
               <span className="font-mono">{uploadPct}%</span>
             </div>
             <Progress value={uploadPct} />
@@ -742,7 +1092,7 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
               {job.clips.map((clip) => {
                 const s = statusByIndex.get(clip.index)?.status ?? "pending";
                 const err = statusByIndex.get(clip.index)?.error;
-                const downloadUrl = `${apiBase}/segment/${job.jobId}/clip/${clip.index}`;
+                const downloadUrl = clipUrlsRef.current.get(clip.index) ?? "";
                 const duration = clip.endSec - clip.startSec;
                 const isDone = s === "done";
 
@@ -835,7 +1185,7 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
                           <span className="text-slate-400">(no text)</span>
                         )}
                       </p>
-                      {isDone ? (
+                      {isDone && downloadUrl ? (
                         <a
                           href={downloadUrl}
                           download={clip.filename}
@@ -865,15 +1215,15 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
             </div>
 
             <p className="mt-3 text-center text-[11px] text-slate-500">
-              Clips stay available for 1 hour · stream-copy (no re-encode) · 6
-              in parallel
+              Runs fully in your browser · stream-copy (no re-encode) · clips
+              cleared on reset
             </p>
           </div>
         )}
 
-        {previewClip && job && (
+        {previewClip && job && clipUrlsRef.current.get(previewClip.index) && (
           <PreviewModal
-            src={`${apiBase}/segment/${job.jobId}/clip/${previewClip.index}`}
+            src={clipUrlsRef.current.get(previewClip.index)!}
             filename={previewClip.filename}
             onClose={() => setPreviewClip(null)}
           />
@@ -891,11 +1241,26 @@ function Home({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCuttin
   );
 }
 
-function App({ incomingSrt, incomingSrtFilename, incomingSrtKey, onSendToCutting }: { incomingSrt?: string; incomingSrtFilename?: string; incomingSrtKey?: number; onSendToCutting?: (files: File[]) => void } = {}) {
+function App({
+  incomingSrt,
+  incomingSrtFilename,
+  incomingSrtKey,
+  onSendToCutting,
+}: {
+  incomingSrt?: string;
+  incomingSrtFilename?: string;
+  incomingSrtKey?: number;
+  onSendToCutting?: (files: File[]) => void;
+} = {}) {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Home incomingSrt={incomingSrt} incomingSrtFilename={incomingSrtFilename} incomingSrtKey={incomingSrtKey} onSendToCutting={onSendToCutting} />
+        <Home
+          incomingSrt={incomingSrt}
+          incomingSrtFilename={incomingSrtFilename}
+          incomingSrtKey={incomingSrtKey}
+          onSendToCutting={onSendToCutting}
+        />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
