@@ -3,7 +3,8 @@ import { useAudioAnalysis } from "@/hooks/useAudioAnalysis";
 import UploadBox from "@/tabs/trimmer/UploadBox";
 import AudioCard from "@/tabs/trimmer/AudioCard";
 import DownloadPanel from "@/tabs/trimmer/DownloadPanel";
-import { Scissors, Trash2, FolderInput } from "lucide-react";
+import { Scissors, Trash2, FolderInput, Download } from "lucide-react";
+import JSZip from "jszip";
 
 type SplitStage = "idle" | "preview" | "trimming" | "done";
 
@@ -34,6 +35,25 @@ export default function VoiceTrimmerTab({ onSendToCutting }: VoiceTrimmerTabProp
     setSplitStage("idle");
     setLoaded(false);
     audioFiles.forEach((f) => removeFile(f.id));
+  };
+
+  const handleDownloadZip = async () => {
+    const trimmed = audioFiles.filter((f) => f.isTrimmed && f.trimmedBlob);
+    if (trimmed.length === 0) return;
+    const zip = new JSZip();
+    for (const f of trimmed) {
+      const baseName = f.name.replace(/\.[^.]+$/, "") + "_trimmed.wav";
+      zip.file(baseName, f.trimmedBlob as Blob);
+    }
+    const blob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `trimmed_audios_${trimmed.length}.zip`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   };
 
   const handleLoadToCutting = () => {
@@ -83,6 +103,20 @@ export default function VoiceTrimmerTab({ onSendToCutting }: VoiceTrimmerTabProp
           )}
         </div>
         <div className="flex items-center gap-2">
+          {splitStage === "done" && trimmedCount > 0 && (
+            <button
+              onClick={handleDownloadZip}
+              title={`Download all ${trimmedCount} trimmed audios as ZIP`}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-all"
+              style={{
+                background: "linear-gradient(90deg, hsl(265,85%,58%), hsl(295,85%,55%))",
+                boxShadow: "0 1px 4px rgba(168,85,247,0.30)",
+              }}
+            >
+              <Download className="w-3 h-3" />
+              ZIP
+            </button>
+          )}
           {splitStage === "done" && trimmedCount > 0 && onSendToCutting && (
             <button
               onClick={handleLoadToCutting}
