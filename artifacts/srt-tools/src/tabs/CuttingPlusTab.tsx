@@ -14,6 +14,7 @@ import {
   Settings2,
   Package,
   Play,
+  FolderInput,
 } from "lucide-react";
 import JSZip from "jszip";
 import { Button } from "@/components/ui/button";
@@ -535,31 +536,27 @@ export default function CuttingPlusTab({
             </div>
             <div className="flex items-center gap-2">
               {totals.done > 0 && onSendToCuttingPlusPlus && (
-                <Button
-                  size="sm"
+                <button
+                  type="button"
                   onClick={sendDoneToCuttingPlusPlus}
-                  className="gap-2 bg-emerald-500 hover:bg-emerald-600 text-white"
+                  className="inline-flex items-center gap-1.5 px-3 h-7 rounded-md bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold tracking-wider uppercase shadow-md transition-all"
                   data-testid="button-load-to-cutting-plus-plus"
                   title={`Send ${totals.done} done clip${totals.done === 1 ? "" : "s"} to Cutting ++`}
                 >
-                  <Upload className="h-4 w-4" />
-                  Load
-                  <span className="ml-1 inline-flex items-center justify-center rounded-full bg-white/20 px-1.5 text-[10px] font-semibold">
-                    {totals.done}
-                  </span>
-                </Button>
+                  <FolderInput className="w-3.5 h-3.5" />
+                  Load ({totals.done})
+                </button>
               )}
               {totals.done > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
+                  type="button"
                   onClick={downloadAllZip}
-                  className="gap-2"
+                  className="inline-flex items-center gap-1.5 px-3 h-7 rounded-md bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:from-indigo-700 hover:via-violet-700 hover:to-fuchsia-700 text-white text-xs font-bold tracking-wider uppercase shadow-md transition-all"
                   data-testid="button-download-all"
                 >
-                  <Package className="h-4 w-4" />
-                  Download all (.zip)
-                </Button>
+                  <Download className="w-3.5 h-3.5" />
+                  ZIP
+                </button>
               )}
               {items.length > 0 && (
                 <Button
