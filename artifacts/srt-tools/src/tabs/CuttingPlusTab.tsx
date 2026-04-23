@@ -544,7 +544,7 @@ export default function CuttingPlusTab({
                   title={`Send ${totals.done} done clip${totals.done === 1 ? "" : "s"} to Cutting ++`}
                 >
                   <FolderInput className="w-3.5 h-3.5" />
-                  Load To Cutting ++ ({totals.done})
+                  Load To Cutting ++
                 </button>
               )}
               {totals.done > 0 && (
