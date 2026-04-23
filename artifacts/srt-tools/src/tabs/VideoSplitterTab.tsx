@@ -956,7 +956,7 @@ function Home({
                 ) : (
                   <>
                     <FolderInput className="w-3.5 h-3.5" />
-                    Load{selected.size > 0 ? ` (${selected.size})` : ""}
+                    Load To Cutting +{selected.size > 0 ? ` (${selected.size})` : ""}
                   </>
                 )}
               </button>
