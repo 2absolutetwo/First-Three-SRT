@@ -69,6 +69,7 @@ function uid() {
 interface IncomingVideoFiles {
   files: File[];
   key: number;
+  autoLoad?: boolean;
 }
 
 export default function CuttingPlusTab({
@@ -172,8 +173,32 @@ export default function CuttingPlusTab({
   const onPickFiles = () => fileInputRef.current?.click();
 
   const lastConsumedKeyRef = useRef<number>(0);
+  const lastAutoLoadedKeyRef = useRef<number>(0);
   const pendingSplitterFiles = incomingVideoFiles?.files ?? [];
   const pendingSplitterKey = incomingVideoFiles?.key ?? 0;
+  const pendingAutoLoad = incomingVideoFiles?.autoLoad ?? false;
+
+  useEffect(() => {
+    if (
+      pendingAutoLoad &&
+      pendingSplitterKey > 0 &&
+      pendingSplitterKey !== lastAutoLoadedKeyRef.current &&
+      pendingSplitterFiles.length > 0
+    ) {
+      lastAutoLoadedKeyRef.current = pendingSplitterKey;
+      lastConsumedKeyRef.current = pendingSplitterKey;
+      const existingNames = new Set(items.map((i) => i.file.name));
+      const fresh = pendingSplitterFiles.filter(
+        (f) => !existingNames.has(f.name),
+      );
+      if (fresh.length > 0) {
+        void addFiles(fresh);
+        toast({
+          title: `Loaded ${fresh.length} clip${fresh.length === 1 ? "" : "s"} from Video Spliter`,
+        });
+      }
+    }
+  }, [pendingAutoLoad, pendingSplitterKey, pendingSplitterFiles, items, addFiles, toast]);
 
   const onLoadClick = () => {
     if (pendingSplitterFiles.length > 0) {

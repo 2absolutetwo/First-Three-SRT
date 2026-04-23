@@ -108,7 +108,7 @@ export default function App() {
   const [noteIncomingName, setNoteIncomingName] = useState("");
   const [noteIncomingKey, setNoteIncomingKey] = useState(0);
   const [cuttingIncomingAudio, setCuttingIncomingAudio] = useState<{ files: File[]; key: number }>({ files: [], key: 0 });
-  const [cuttingPlusIncomingVideos, setCuttingPlusIncomingVideos] = useState<{ files: File[]; key: number }>({ files: [], key: 0 });
+  const [cuttingPlusIncomingVideos, setCuttingPlusIncomingVideos] = useState<{ files: File[]; key: number; autoLoad?: boolean }>({ files: [], key: 0 });
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     if (typeof window === "undefined") return "light";
     const saved = localStorage.getItem("srt-tools-theme");
@@ -287,8 +287,8 @@ export default function App() {
           incomingSrtFilename={videoIncomingSrtFilename}
           incomingSrtKey={videoIncomingSrtKey}
           onSendToCutting={(files) => {
-            setCuttingIncomingAudio({ files, key: Date.now() });
-            handleSelectTab("cutting");
+            setCuttingPlusIncomingVideos({ files, key: Date.now(), autoLoad: true });
+            handleSelectTab("cuttingPlus");
           }}
           onOutputsChange={handleVideoSplitterOutputs}
         />
